@@ -1,6 +1,7 @@
 import { Card } from 'react-bootstrap';
 import { useParams, Outlet, useLocation } from 'react-router-dom';
 import NameButtonNavbar from '../components/ButtonNavbar';
+import styled from 'styled-components';
 
 const getTabBasePath = (currentPath) => {
   let currentParts = currentPath.split('/');
@@ -15,27 +16,36 @@ const getTabs = (tabTitles: string[], basePath: string) => {
   }));
   return tabs;
 };
-const NamePage = () => {
+
+interface NamePageProps {
+  className?: string;
+}
+const NamePage = ({ className }: NamePageProps) => {
   let { name } = useParams();
   let location = useLocation();
   let tabBasePath = getTabBasePath(location.pathname);
   let tabTitles = ['Register', 'Details', 'Subdomains'];
   let tabs = getTabs(tabTitles, tabBasePath);
   return (
-    <Card>
-      <Card.Header>
-        <div className="d-flex flex-column flex-md-row px-md-4 py-1 justify-content-between">
-          <div className="d-flex align-items-center">
-            <div className="fw-light fs-4">{name}</div>
+    <div className={`container justi-content-center`}>
+      <Card className={`m-sm-5 ${className}`}>
+        <Card.Header>
+          <div className="d-flex flex-column flex-md-row px-md-4 py-1 justify-content-between">
+            <div className="d-flex align-items-center">
+              <div className="fw-light fs-4">{name}</div>
+            </div>
+            <NameButtonNavbar tabs={tabs} />
           </div>
-          <NameButtonNavbar tabs={tabs} />
-        </div>
-      </Card.Header>
-      <Card.Body>
-        <Outlet />
-      </Card.Body>
-    </Card>
+        </Card.Header>
+        <Card.Body>
+          <Outlet />
+        </Card.Body>
+      </Card>
+    </div>
   );
 };
 
-export default NamePage;
+const styledNamePage = styled(NamePage)`
+  max-width: 1000px;
+`;
+export default styledNamePage;

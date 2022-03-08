@@ -18,6 +18,13 @@ const SearchBox = ({
   className,
 }: SearchBoxProps) => {
   const [searchValue, setSearchValue] = useState<string>('');
+  const handleKeypress = (e) => {
+    //it triggers by pressing the enter key
+    console.log(e);
+    if (e.key === 'Enter') {
+      handleSearch(searchValue);
+    }
+  };
   return (
     <>
       <InputGroup className={`mb-3 shadow ${className || ''}`}>
@@ -27,6 +34,7 @@ const SearchBox = ({
           aria-describedby="basic-addon2"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
+          onKeyPress={(e) => handleKeypress(e)}
         />
         <Button
           variant="outline-secondary"

@@ -5,8 +5,10 @@ import Header from './components/Header';
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { useEffect, useState } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import NameRegistrationForm from './pages/NameRegistration';
+import NamePage from './pages/NamePage';
+
 const getAccount = async () => {
   await cryptoWaitReady();
   const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
@@ -29,8 +31,14 @@ function App() {
           <Header account={account} />
           <Routes>
             <Route path="/" element={<MainPage />} />
-            <Route path="/name">
-              <Route path=":name" element={<NameRegistrationForm />} />
+            <Route
+              path="/name/:name/"
+              element={<Navigate to="register" replace={true} />}
+            />
+            <Route path="/name/:name/*" element={<NamePage />}>
+              <Route path="register" element={<NameRegistrationForm />} />
+              <Route path="details" element={<div>Detail</div>} />
+              <Route path="subdomains" element={<div>Subdomains</div>} />
             </Route>
           </Routes>
         </Container>

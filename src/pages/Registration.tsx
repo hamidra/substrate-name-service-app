@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router';
 import { Card } from 'react-bootstrap';
+import NameButtonNavbar from '../components/ButtonNavbar';
 
 interface CounterInputProps {
   unit?: string;
@@ -33,24 +34,7 @@ const CounterInput = ({ unit, value, setValue }: CounterInputProps) => {
     </div>
   );
 };
-const ButtonNavBar = ({ titles, activeTitle, setActiveTitle }) => {
-  return (
-    <div className="btn-group" role="group" aria-label="Button Navigation Bar">
-      {titles.map((title, index) => (
-        <button
-          type="button"
-          style={{ minWidth: 100 }}
-          key={index}
-          className={`btn ${
-            title === activeTitle ? 'btn-primary' : 'btn-outline-primary'
-          }`}
-        >
-          {title}
-        </button>
-      ))}
-    </div>
-  );
-};
+
 const RegistrationSteps = ({ activeStep, ...rest }) => {
   return (
     <div className={`container-fluid ${rest?.className || ''}`}>
@@ -102,7 +86,7 @@ const RegistrationSteps = ({ activeStep, ...rest }) => {
   );
 };
 
-const NameRegistrationForm = () => {
+const RegistrationCard = () => {
   let [leaseTime, setLeaseTime] = useState(1);
   return (
     <>
@@ -134,28 +118,4 @@ const NameRegistrationForm = () => {
   );
 };
 
-const NameRegistrationCard = () => {
-  let { name } = useParams();
-
-  return (
-    <Card>
-      <Card.Header>
-        <div className="d-flex flex-column flex-md-row px-md-4 py-1 justify-content-between">
-          <div className="d-flex align-items-center">
-            <div className="fw-light fs-4">{name}</div>
-          </div>
-          <ButtonNavBar
-            titles={['Register', 'Details', 'Subdomains']}
-            activeTitle="Register"
-            setActiveTitle={() => {}}
-          />
-        </div>
-      </Card.Header>
-      <Card.Body>
-        <NameRegistrationForm />
-      </Card.Body>
-    </Card>
-  );
-};
-
-export default NameRegistrationCard;
+export default RegistrationCard;

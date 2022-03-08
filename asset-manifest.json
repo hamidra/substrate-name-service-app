@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/substrate-name-service-app/static/css/main.d978bbe5.css",
+    "main.js": "/substrate-name-service-app/static/js/main.8701bf85.js",
+    "static/js/787.bb4c93c4.chunk.js": "/substrate-name-service-app/static/js/787.bb4c93c4.chunk.js",
+    "static/media/polkadot-circle.svg": "/substrate-name-service-app/static/media/polkadot-circle.4345f3e48698d0e1e9362232d5a0e99f.svg",
+    "index.html": "/substrate-name-service-app/index.html",
+    "static/media/index.cjs": "/substrate-name-service-app/static/media/index.f2b6f7ffc9a430272d20.cjs",
+    "main.d978bbe5.css.map": "/substrate-name-service-app/static/css/main.d978bbe5.css.map",
+    "main.8701bf85.js.map": "/substrate-name-service-app/static/js/main.8701bf85.js.map",
+    "787.bb4c93c4.chunk.js.map": "/substrate-name-service-app/static/js/787.bb4c93c4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d978bbe5.css",
+    "static/js/main.8701bf85.js"
+  ]
+}

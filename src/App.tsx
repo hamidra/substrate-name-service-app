@@ -6,7 +6,7 @@ import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import NameRegistrationForm from './pages/NameRegistration';
+import NameRegistrationForm from './pages/Registration';
 import NamePage from './pages/NamePage';
 
 const getAccount = async () => {

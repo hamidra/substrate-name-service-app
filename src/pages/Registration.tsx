@@ -13,6 +13,7 @@ const CounterInput = ({ unit, value, setValue }: CounterInputProps) => {
     <div className="input-group">
       <button
         className="btn btn-outline-secondary"
+        type="button"
         onClick={() => setValue(value - 1)}
       >
         -
@@ -27,6 +28,7 @@ const CounterInput = ({ unit, value, setValue }: CounterInputProps) => {
       <span className="input-group-text">{unit}</span>
       <button
         className="btn btn-outline-secondary"
+        type="button"
         onClick={() => setValue(value + 1)}
       >
         +

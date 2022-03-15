@@ -1,13 +1,19 @@
 import React, { useReducer, useContext, useMemo, useEffect } from 'react';
 import { ApiPromise, WsProvider } from '@polkadot/api';
+import queryString from 'query-string';
+import config from '../config';
 import BN from 'bn.js';
+
+const parsedQuery = queryString.parse(window.location.search);
+const connectedSocket = parsedQuery.rpc || config.PROVIDER_SOCKET;
+console.log(`Connected socket: ${connectedSocket}`);
 
 ///
 // Initial state for `useReducer`
 const INIT_STATE = {
-  socket: 'wss://rpc.polkadot.io',
+  socket: connectedSocket,
   jsonrpc: {},
-  types: {},
+  types: config.types,
   api: null,
   apiError: null,
   apiState: null,
@@ -20,10 +26,8 @@ const reducer = (state, action) => {
   switch (action.type) {
     case 'CONNECT_INIT':
       return { ...state, apiState: 'CONNECT_INIT' };
-
     case 'CONNECT':
       return { ...state, api: action.payload, apiState: 'CONNECTING' };
-
     case 'CONNECT_SUCCESS': {
       const chainInfo = action.payload;
       return {
@@ -32,7 +36,6 @@ const reducer = (state, action) => {
         chainInfo: chainInfo,
       };
     }
-
     case 'CONNECT_ERROR':
       return { ...state, apiState: 'ERROR', apiError: action.payload };
     default:
@@ -76,7 +79,7 @@ const queryChainInfo = async (api, state, dispatch) => {
     token: (api.registry?.chainTokens[0] || 'DOT')?.toUpperCase(),
     genesisHash: api.genesisHash,
     ss58Format:
-      api.registry?.chainSS58 || api.registry?.chainSS58 == 0
+      api.registry?.chainSS58 || api.registry?.chainSS58 === 0
         ? api.registry?.chainSS58
         : 42,
     existentialDeposit:
@@ -92,9 +95,6 @@ const queryChainInfo = async (api, state, dispatch) => {
   console.log(chainInfo);
   dispatch({ type: 'CONNECT_SUCCESS', payload: chainInfo });
 };
-
-///
-// Loading accounts from dev and polkadot-js extension
 
 const SubstrateContext = React.createContext({});
 

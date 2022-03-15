@@ -1,0 +1,20 @@
+{
+  "NameHash": "[u8;32]",
+  "CommitmentHash": "[u8; 32]",
+  "Commitment": {
+    "who": "AccountId",
+    "when": "BlockNumber",
+    "deposit": "Balance"
+  },
+  "Registration": {
+    "owner": "AccountId",
+    "registrant": "AccountId",
+    "expiry": "BlockNumber",
+    "deposit": "Balance"
+  },
+  "Resolver": {
+    "_enum": {
+      "Default": "AccountId"
+    }
+  }
+}

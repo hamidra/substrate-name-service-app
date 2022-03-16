@@ -38,7 +38,7 @@ const CounterInput = ({ unit, value, setValue }: CounterInputProps) => {
 let steps = [{ now: 100 }, { now: 100 }, { now: 50 }];
 const RegistrationSteps = ({ activeStep, ...rest }) => {
   return (
-    <div className={`container-fluid ${rest?.className || ''}`}>
+    <div>
       <div className="row">
         <div className="col-12">
           <hr />
@@ -96,8 +96,8 @@ const RegistrationCard = () => {
   let [leaseTime, setLeaseTime] = useState(1);
   return (
     <>
-      <form>
-        <div className="row">
+      <form className="px-2">
+        <div className="row justify-content-between">
           <div className="col-12 col-md-6 my-2">
             <CounterInput
               value={leaseTime}
@@ -114,7 +114,7 @@ const RegistrationCard = () => {
         <RegistrationSteps activeStep={0} className="pt-5" />
         <div className="row">
           <div className="col d-flex justify-content-end pe-3">
-            <button className="btn btn-outline-primary">
+            <button type="button" className="btn btn-outline-primary">
               Request to Register
             </button>
           </div>

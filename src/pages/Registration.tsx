@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import StepProgressBar from '../components/StepProgressBar';
+import { useParams } from 'react-router-dom';
 
 interface CounterInputProps {
   unit?: string;
@@ -92,8 +93,9 @@ const RegistrationSteps = ({ activeStep, ...rest }) => {
   );
 };
 
-const RegistrationCard = () => {
+const RegistrationCard = ({ handleRegistration }) => {
   let [leaseTime, setLeaseTime] = useState(1);
+  let { name } = useParams();
   return (
     <>
       <form className="px-2">
@@ -114,7 +116,11 @@ const RegistrationCard = () => {
         <RegistrationSteps activeStep={0} className="pt-5" />
         <div className="row">
           <div className="col d-flex justify-content-end pe-3">
-            <button type="button" className="btn btn-outline-primary">
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={(e) => handleRegistration(name)}
+            >
               Request to Register
             </button>
           </div>

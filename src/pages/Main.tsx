@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import SearchBox from '../components/SearchBox';
 import { useNavigate } from 'react-router-dom';
-import { generateNameHash } from '../substrate/palletProvider';
 
 interface PageProps {
   className?: string;
@@ -17,7 +16,6 @@ const MainPage = ({ className }: PageProps) => {
             placeholder="Find your perfect Kusama account name"
             handleSearch={(phrase) => {
               // validate phrase
-              console.log(generateNameHash(phrase, 1));
               navigate(`name/${phrase}`);
             }}
           />

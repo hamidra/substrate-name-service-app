@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router';
-import { Card } from 'react-bootstrap';
-import NameButtonNavbar from '../components/ButtonNavbar';
+import StepProgressBar from '../components/StepProgressBar';
 
 interface CounterInputProps {
   unit?: string;
@@ -37,6 +35,7 @@ const CounterInput = ({ unit, value, setValue }: CounterInputProps) => {
   );
 };
 
+let steps = [{ now: 100 }, { now: 100 }, { now: 50 }];
 const RegistrationSteps = ({ activeStep, ...rest }) => {
   return (
     <div className={`container-fluid ${rest?.className || ''}`}>
@@ -82,6 +81,11 @@ const RegistrationSteps = ({ activeStep, ...rest }) => {
             Click ‘register’ and your wallet will re-open. Only after the 2nd
             transaction is confirmed you'll know if you got the name.
           </p>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col py-3">
+          <StepProgressBar steps={steps} />
         </div>
       </div>
     </div>

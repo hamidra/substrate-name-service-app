@@ -10,7 +10,7 @@ interface tab {
   title: string;
   path: string;
 }
-const NavTabButton = ({ tab }) => {
+const NavTabButton = ({ tab }: { tab: tab }) => {
   let navigate = useNavigate();
 
   let switchActiveTab = (tab: tab) => {

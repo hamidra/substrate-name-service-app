@@ -1,5 +1,7 @@
 import { signAndSendTx } from './txHandler';
 import { getAccountAddress } from './utils';
+import { blake2AsHex } from '@polkadot/util-crypto';
+import { numberToU8a, stringToU8a, hexToU8a } from '@polkadot/util';
 
 interface NameServiceConstants {
   commitmentDeposit: number;
@@ -35,13 +37,45 @@ class NameServiceProvider {
     console.log(this.constants);
   }
 
+  generateCommitHashBytes = (name: string, secret: number) => {
+    const nameU8a: Uint8Array = stringToU8a(name);
+    const secretU8a: Uint8Array = numberToU8a(secret);
+    const saltedNameU8a: Uint8Array = new Uint8Array(
+      nameU8a.length + secretU8a.length
+    );
+    console.log(secretU8a.forEach((b) => console.log(b.toString(16))));
+    console.log(secret);
+    console.log(secret.toString(16));
+    saltedNameU8a.set(nameU8a);
+    saltedNameU8a.set(secretU8a, nameU8a.length);
+    console.log(saltedNameU8a);
+    const hash = blake2AsHex(saltedNameU8a);
+    return hash;
+  };
+
+  generateCommitmentHashCodec = (
+    name: string = 'alice',
+    secret: number = 3
+  ) => {
+    console.log(name, secret);
+    const preimage = this.apiClient.createType('CommitmentRaw', [name, secret]);
+    console.log('preimage');
+    console.log(preimage.toHex());
+    const hash = blake2AsHex(preimage.toU8a());
+    console.log('commitment hash');
+    console.log(hash);
+    return hash;
+  };
+
   async commit(account, commitmentHash) {
     try {
       let address = getAccountAddress(account);
-      let commitTx = this.apiClient.tx.NameService?.commit(
+      let commitTx = await this.apiClient.tx.nameService?.commit(
         address,
         commitmentHash
       );
+      console.log('tx');
+      console.log(address);
       return signAndSendTx(this.apiClient, commitTx, account);
     } catch (err) {
       alert(err);

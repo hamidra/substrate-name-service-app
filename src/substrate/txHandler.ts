@@ -23,7 +23,8 @@ const decodeResult = (api, result) => {
   return { success, events, error };
 };
 
-const signAndSendTx = async (api, tx, signingPair, finalize = true) => {
+const signAndSendTx = async (api, tx, signingAccount, finalize = true) => {
+  const { pairOrAddress, signer } = signingAccount;
   return new Promise((resolve, reject) => {
     let cb = ({ success, events, error }) => {
       if (!success) {
@@ -34,7 +35,8 @@ const signAndSendTx = async (api, tx, signingPair, finalize = true) => {
     let signAndSendAsync = async () => {
       try {
         let dispatchResult;
-        const unsub = await tx.signAndSend(signingPair, (callResult) => {
+        await tx.signAsync(pairOrAddress, { signer });
+        const unsub = await tx.send((callResult) => {
           const { status, ...result } = callResult;
           if (status.isInBlock) {
             dispatchResult = decodeResult(api, result);

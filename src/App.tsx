@@ -25,9 +25,7 @@ function App() {
         <HashRouter>
           <Container fluid>
             <Header account={account} />
-            <Routes>
-              <NameServiceRoutes />
-            </Routes>
+            <NameServiceRoutes />
           </Container>
         </HashRouter>
       </SubstrateContextProvider>

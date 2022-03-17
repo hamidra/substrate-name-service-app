@@ -1,6 +1,7 @@
 {
+  "CommitmentRaw": "(Vec<u8>,u64)",
   "NameHash": "[u8;32]",
-  "CommitmentHash": "[u8; 32]",
+  "CommitmentHash": "[u8;32]",
   "Commitment": {
     "who": "AccountId",
     "when": "BlockNumber",

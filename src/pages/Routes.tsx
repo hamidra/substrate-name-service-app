@@ -3,11 +3,11 @@ import RegistrationCard from './Registration';
 import SubdomainsCard from './Subdomains';
 import NamePage from './NamePage';
 import NameDetailsCard from './NameDetail';
-import { Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import NameServiceProvider from '../substrate/nsPalletProvider';
 import { useSubstrate } from '../substrate';
 import { useEffect, useState } from 'react';
-import { getAlice, generateCommitHash, get32BitSalt } from '../substrate/utils';
+import { getAlice, get32BitSalt } from '../substrate/utils';
 
 const NameServiceRoutes = () => {
   let { state: substrate }: any = useSubstrate();
@@ -22,15 +22,17 @@ const NameServiceRoutes = () => {
   }, [substrate?.apiState, substrate?.api]);
 
   const handleRegistrationCommit = async (name) => {
-    let aliceAccount = getAlice();
+    let aliceAccount = await getAlice();
     const salt = get32BitSalt();
-    const commitHash = generateCommitHash(name, salt);
-    console.log(salt, commitHash);
+    const commitHash = nameServiceProvider?.generateCommitmentHashCodec(
+      name,
+      salt
+    );
     nameServiceProvider?.commit(aliceAccount, commitHash);
   };
 
   return (
-    <>
+    <Routes>
       <Route path="/" element={<MainPage />} />
       <Route
         path="/name/:name/"
@@ -46,7 +48,7 @@ const NameServiceRoutes = () => {
         <Route path="details" element={<NameDetailsCard />} />
         <Route path="subdomains" element={<SubdomainsCard />} />
       </Route>
-    </>
+    </Routes>
   );
 };
 

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import StepProgressBar from '../components/StepProgressBar';
 import { useParams } from 'react-router-dom';
+import { useSubstrate } from '../substrate';
+import { getAlice, get32BitSalt } from '../substrate/utils';
 
 interface CounterInputProps {
   unit?: string;
@@ -36,8 +38,7 @@ const CounterInput = ({ unit, value, setValue }: CounterInputProps) => {
   );
 };
 
-let steps = [{ now: 100 }, { now: 100 }, { now: 50 }];
-const RegistrationSteps = ({ activeStep, ...rest }) => {
+const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
   return (
     <div>
       <div className="row">
@@ -50,7 +51,7 @@ const RegistrationSteps = ({ activeStep, ...rest }) => {
 
         <div
           className={`col-12 pt-2 col-md-4 pt-md-3 ${
-            activeStep === 1 ? 'text-primary' : 'text-muted'
+            currentStep === 1 ? 'text-primary' : 'text-muted'
           }`}
         >
           <h4> Step 1 : Request to Register</h4>
@@ -63,7 +64,7 @@ const RegistrationSteps = ({ activeStep, ...rest }) => {
         </div>
         <div
           className={`col-12 pt-2 col-md-4 pt-md-3 ${
-            activeStep === 2 ? 'text-success' : 'text-muted'
+            currentStep === 2 ? 'text-success' : 'text-muted'
           }`}
         >
           <h4> Step 2 : Wait at least for 1 minute</h4>
@@ -74,7 +75,7 @@ const RegistrationSteps = ({ activeStep, ...rest }) => {
         </div>
         <div
           className={`col-12 pt-2 col-md-4 pt-md-3 ${
-            activeStep === 3 ? 'text-success' : 'text-muted'
+            currentStep === 3 ? 'text-success' : 'text-muted'
           }`}
         >
           <h4> Step 3 :Complete your registration</h4>
@@ -86,16 +87,33 @@ const RegistrationSteps = ({ activeStep, ...rest }) => {
       </div>
       <div className="row">
         <div className="col py-3">
-          <StepProgressBar steps={steps} />
+          <StepProgressBar
+            currentStep={currentStep}
+            totalSteps={3}
+            currentNow={currentStepProgress}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-const RegistrationCard = ({ handleRegistration }) => {
-  let [leaseTime, setLeaseTime] = useState(1);
+const RegistrationCard = () => {
+  const { nameServiceProvider }: any = useSubstrate();
   let { name } = useParams();
+
+  let [leaseTime, setLeaseTime] = useState(1);
+
+  const handleRegistrationCommit = async (name) => {
+    let aliceAccount = await getAlice();
+    const salt = get32BitSalt();
+    const commitHash = nameServiceProvider.generateCommitmentHashCodec(
+      name,
+      salt
+    );
+    nameServiceProvider.commit(aliceAccount, commitHash);
+  };
+
   return (
     <>
       <form className="px-2">
@@ -113,13 +131,13 @@ const RegistrationCard = ({ handleRegistration }) => {
             <div className="form-text">Registration Price</div>
           </div>
         </div>
-        <RegistrationSteps activeStep={0} className="pt-5" />
+        <RegistrationSteps currentStep={0} currentStepProgress={80} />
         <div className="row">
           <div className="col d-flex justify-content-end pe-3">
             <button
               type="button"
               className="btn btn-outline-primary"
-              onClick={(e) => handleRegistration(name)}
+              onClick={(e) => handleRegistrationCommit(name)}
             >
               Request to Register
             </button>

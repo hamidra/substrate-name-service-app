@@ -13,10 +13,10 @@ const StepProgressBar = ({
   let now = 0;
   if (currentNow === 100 && currentStep === totalSteps) {
     now = 100;
-  } else {
+  } else if (currentStep > 0) {
     let unit = 100 / totalSteps;
     currentNow /= totalSteps;
-    now = currentStep > 0 ? (currentStep - 1) * unit : 0;
+    now = (currentStep - 1) * unit;
     now += currentNow;
   }
   return <ProgressBar now={now} />;

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import StepProgressBar from '../components/StepProgressBar';
 import { useParams } from 'react-router-dom';
 import { useSubstrate } from '../substrate';
 import { getAlice, get32BitSalt } from '../substrate/utils';
+import { useEffect } from 'react';
 
 interface CounterInputProps {
   unit?: string;
@@ -80,7 +81,7 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
         >
           <h4> Step 3 :Complete your registration</h4>
           <p>
-            Click ‘register’ and your wallet will re-open. Only after the 2nd
+            Click "register" and your wallet will re-open. Only after the 2nd
             transaction is confirmed you'll know if you got the name.
           </p>
         </div>
@@ -101,17 +102,107 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
 const RegistrationCard = () => {
   const { nameServiceProvider }: any = useSubstrate();
   let { name } = useParams();
-
   let [leaseTime, setLeaseTime] = useState(1);
+  let [currentStep, setCurrentStep] = useState(1);
+  let [currentStepProgress, setCurrentStepProgress] = useState(0);
+  let currentStepProgressRef = useRef(currentStepProgress);
+  let [salt, setSalt] = useState(null);
+  const loadRegistrationState = async () => {
+    const nameSalt = localStorage.getItem(name);
+    if (nameSalt) {
+      nameSalt && setSalt(nameSalt);
+      let commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
+        name,
+        nameSalt
+      );
+      let commitment = await nameServiceProvider.getCommitment(commitmentHash);
+      // ToDo: match the connected account address with the commentment.who address
 
-  const handleRegistrationCommit = async (name) => {
+      // ToDo: check if commitment is mature if commiment is mature (the wait time is over)
+
+      if (commitment) {
+        setCurrentStep(3);
+        setCurrentStepProgress(0);
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadRegistrationState();
+  }, []);
+
+  const getRegistrationButtonState = (step) => {
+    let state = {
+      title: 'Request to Register',
+      disabled: false,
+      clickHandler: () => handleRegistrationCommit(),
+    };
+    switch (step) {
+      case 1:
+        break;
+      case 2:
+        state = {
+          title: 'Register',
+          disabled: true,
+          clickHandler: () => {
+            return null;
+          },
+        };
+        break;
+      case 3:
+        state = {
+          title: 'Register',
+          disabled: false,
+          clickHandler: () => handleRegistrationReveal(),
+        };
+        break;
+    }
+    return state;
+  };
+
+  const {
+    title: btnTitle,
+    disabled: btnDisabled,
+    clickHandler: btnClickHandler,
+  } = getRegistrationButtonState(currentStep);
+
+  const handleRegistrationReveal = async () => {
+    let aliceAccount = await getAlice();
+    nameServiceProvider.reveal(aliceAccount, name, salt, 3000).then(() => {
+      setCurrentStep(3);
+      setCurrentStepProgress(100);
+    });
+    setCurrentStep(3);
+    setCurrentStepProgress(50);
+  };
+
+  const handleRegistrationCommit = async () => {
     let aliceAccount = await getAlice();
     const salt = get32BitSalt();
+    setSalt(salt);
     const commitHash = nameServiceProvider.generateCommitmentHashCodec(
       name,
       salt
     );
-    nameServiceProvider.commit(aliceAccount, commitHash);
+    nameServiceProvider.commit(aliceAccount, commitHash).then(() => {
+      setCurrentStep(2);
+      setCurrentStepProgress(0);
+      let timer = setInterval(() => {
+        let newProgress = currentStepProgressRef.current + 10;
+        console.log(newProgress);
+        if (newProgress < 100) {
+          setCurrentStepProgress(newProgress);
+          currentStepProgressRef.current = newProgress;
+        } else {
+          setCurrentStep(3);
+          setCurrentStepProgress(0);
+          clearInterval(timer);
+        }
+      }, 60);
+    });
+
+    setCurrentStep(1);
+    setCurrentStepProgress(50);
   };
 
   return (
@@ -131,15 +222,19 @@ const RegistrationCard = () => {
             <div className="form-text">Registration Price</div>
           </div>
         </div>
-        <RegistrationSteps currentStep={0} currentStepProgress={80} />
+        <RegistrationSteps
+          currentStep={currentStep}
+          currentStepProgress={currentStepProgress}
+        />
         <div className="row">
           <div className="col d-flex justify-content-end pe-3">
             <button
               type="button"
               className="btn btn-outline-primary"
-              onClick={(e) => handleRegistrationCommit(name)}
+              onClick={(e) => btnClickHandler()}
+              disabled={btnDisabled}
             >
-              Request to Register
+              {btnTitle}
             </button>
           </div>
         </div>

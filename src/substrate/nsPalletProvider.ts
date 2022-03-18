@@ -59,32 +59,37 @@ class NameServiceProvider {
     return hash;
   };
 
-  async commit(account, commitmentHash) {
-    try {
-      let address = getAccountAddress(account);
-      let commitTx = await this.apiClient.tx.nameService.commit(
-        address,
-        commitmentHash
-      );
-      console.log('tx');
-      console.log(address);
-      return signAndSendTx(this.apiClient, commitTx, account, true);
-    } catch (err) {
-      console.log(err);
-    }
+  generateNameHash = (name: string) => {
+    const hash = blake2AsHex(name);
+    return hash;
+  };
+
+  async getCommitment(commitmentHash) {
+    return this.apiClient.query.nameService.commitments(commitmentHash);
   }
 
-  async revealAndRegister(account, name, secret, periods) {
-    try {
-      let revealTx = this.apiClient.tx.nameService.reveal(
-        name,
-        secret,
-        periods
-      );
-      return signAndSendTx(this.apiClient, revealTx, account);
-    } catch (err) {
-      alert(err);
-    }
+  async getRegistration(nameHash) {
+    return this.apiClient.query.nameService.registrations(nameHash);
+  }
+
+  async getResolver(nameHash) {
+    return this.apiClient.query.nameService.resolvers(nameHash);
+  }
+
+  async commit(account, commitmentHash) {
+    let address = getAccountAddress(account);
+    let commitTx = await this.apiClient.tx.nameService.commit(
+      address,
+      commitmentHash
+    );
+    console.log('tx');
+    console.log(address);
+    return signAndSendTx(this.apiClient, commitTx, account, true);
+  }
+
+  async reveal(account, name, secret, periods) {
+    let revealTx = this.apiClient.tx.nameService.reveal(name, secret, periods);
+    return signAndSendTx(this.apiClient, revealTx, account);
   }
 }
 

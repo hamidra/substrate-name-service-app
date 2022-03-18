@@ -43,48 +43,40 @@ class NameServiceProvider {
     const saltedNameU8a: Uint8Array = new Uint8Array(
       nameU8a.length + secretU8a.length
     );
-    console.log(secretU8a.forEach((b) => console.log(b.toString(16))));
-    console.log(secret);
-    console.log(secret.toString(16));
+
     saltedNameU8a.set(nameU8a);
     saltedNameU8a.set(secretU8a, nameU8a.length);
     console.log(saltedNameU8a);
     const hash = blake2AsHex(saltedNameU8a);
+    console.log(name, secret, hash);
     return hash;
   };
 
-  generateCommitmentHashCodec = (
-    name: string = 'alice',
-    secret: number = 3
-  ) => {
-    console.log(name, secret);
+  generateCommitmentHashCodec = (name: string, secret: number) => {
     const preimage = this.apiClient.createType('CommitmentRaw', [name, secret]);
-    console.log('preimage');
-    console.log(preimage.toHex());
     const hash = blake2AsHex(preimage.toU8a());
-    console.log('commitment hash');
-    console.log(hash);
+    console.log(name, secret, hash);
     return hash;
   };
 
   async commit(account, commitmentHash) {
     try {
       let address = getAccountAddress(account);
-      let commitTx = await this.apiClient.tx.nameService?.commit(
+      let commitTx = await this.apiClient.tx.nameService.commit(
         address,
         commitmentHash
       );
       console.log('tx');
       console.log(address);
-      return signAndSendTx(this.apiClient, commitTx, account);
+      return signAndSendTx(this.apiClient, commitTx, account, true);
     } catch (err) {
-      alert(err);
+      console.log(err);
     }
   }
 
   async revealAndRegister(account, name, secret, periods) {
     try {
-      let revealTx = this.apiClient.tx.NameService?.reveal(
+      let revealTx = this.apiClient.tx.nameService.reveal(
         name,
         secret,
         periods

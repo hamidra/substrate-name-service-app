@@ -3,6 +3,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import queryString from 'query-string';
 import config from '../config';
 import BN from 'bn.js';
+import NameServiceProvider from '../substrate/nsPalletProvider';
 
 const parsedQuery = queryString.parse(window.location.search);
 const connectedSocket = parsedQuery.rpc || config.PROVIDER_SOCKET;
@@ -18,6 +19,7 @@ const INIT_STATE = {
   apiError: null,
   apiState: null,
   chainInfo: null,
+  nameServiceProvider: null,
 };
 
 ///
@@ -38,6 +40,8 @@ const reducer = (state, action) => {
     }
     case 'CONNECT_ERROR':
       return { ...state, apiState: 'ERROR', apiError: action.payload };
+    case 'SET_NS_PALLET':
+      return { ...state, nameServiceProvider: action.payload };
     default:
       throw new Error(`Unknown type: ${action.type}`);
   }
@@ -101,13 +105,21 @@ const SubstrateContext = React.createContext({});
 const SubstrateContextProvider = (props) => {
   // filtering props and merge with default param value
   const initState = { ...INIT_STATE };
-  const [state, dispatch] = useReducer(reducer, initState);
+  const [substrate, dispatch] = useReducer(reducer, initState);
 
   useEffect(() => {
-    connect(state, dispatch);
+    if (substrate.apiState === 'READY') {
+      let nameServiceProvider = new NameServiceProvider(substrate.api);
+      nameServiceProvider?.initialize();
+      dispatch({ type: 'SET_NS_PALLET', payload: nameServiceProvider });
+    }
+  }, [substrate?.apiState, substrate?.api]);
+
+  useEffect(() => {
+    connect(substrate, dispatch);
   }, [connect]);
 
-  const contextValue = { state, dispatch };
+  const contextValue = { ...substrate, dispatch };
   return (
     <SubstrateContext.Provider value={contextValue}>
       {props.children}

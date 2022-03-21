@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import StepProgressBar from '../components/StepProgressBar';
 import { useParams } from 'react-router-dom';
-import { useSubstrate } from '../substrate';
+import { useSubstrate } from '../substrate/SubstrateContext';
 import { getAlice, get32BitSalt } from '../substrate/utils';
 import { useEffect } from 'react';
 

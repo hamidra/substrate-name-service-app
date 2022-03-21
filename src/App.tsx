@@ -5,7 +5,7 @@ import { getAlice } from './substrate/utils';
 import Header from './components/Header';
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes } from 'react-router-dom';
-import { SubstrateContextProvider } from './substrate';
+import { SubstrateContextProvider } from './substrate/SubstrateContext';
 import NameServiceRoutes from './pages/Routes';
 
 import DeveloperConsole from './substrate/DeveloperConsole';

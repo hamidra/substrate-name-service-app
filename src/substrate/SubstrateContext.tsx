@@ -3,7 +3,8 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import queryString from 'query-string';
 import config from '../config';
 import BN from 'bn.js';
-import NameServiceProvider from '../substrate/nsPalletProvider';
+import NameServiceProvider from './nsPalletProvider';
+import keyring from '@polkadot/ui-keyring';
 
 const parsedQuery = queryString.parse(window.location.search);
 const connectedSocket = parsedQuery.rpc || config.PROVIDER_SOCKET;
@@ -20,6 +21,10 @@ const INIT_STATE = {
   apiState: null,
   chainInfo: null,
   nameServiceProvider: null,
+  keyring: null,
+  keyringState: null,
+  extensionState: null,
+  balances: null,
 };
 
 ///
@@ -42,6 +47,26 @@ const reducer = (state, action) => {
       return { ...state, apiState: 'ERROR', apiError: action.payload };
     case 'SET_NS_PALLET':
       return { ...state, nameServiceProvider: action.payload };
+    case 'LOAD_KEYRING':
+      return { ...state, keyringState: 'LOADING' };
+
+    case 'SET_KEYRING':
+      return { ...state, keyring: action.payload, keyringState: 'READY' };
+
+    case 'KEYRING_ERROR':
+      return { ...state, keyring: null, keyringState: 'ERROR' };
+    case 'LOAD_EXTENSION':
+      return { ...state, extensionState: 'LOADING' };
+    case 'NO_EXTENSION':
+      return { ...state, extensionState: 'NOT_AVAILABLE' };
+    case 'EXTENSION_ERROR':
+      return { ...state, extensionState: 'ERROR' };
+    case 'SET_EXTENSION':
+      return { ...state, extensionState: 'READY' };
+    case 'BALANCE_UPDATE': {
+      const { address, balance } = action.payload;
+      return { ...state, balances: { ...state?.balances, [address]: balance } };
+    }
     default:
       throw new Error(`Unknown type: ${action.type}`);
   }
@@ -65,9 +90,9 @@ const connect = (state, dispatch) => {
     _api.on('connected', () => {
       dispatch({ type: 'CONNECT', payload: _api });
       // `ready` event is not emitted upon reconnection and is checked explicitly here.
-      _api.isReady.then((_api) => queryChainInfo(_api, state, dispatch));
+      _api.isReady.then((_api) => queryChainInfo(_api, dispatch));
     });
-    _api.on('ready', () => queryChainInfo(_api, state, dispatch));
+    _api.on('ready', () => queryChainInfo(_api, dispatch));
     _api.on('error', (err) =>
       dispatch({ type: 'CONNECT_ERROR', payload: err })
     );
@@ -77,7 +102,7 @@ const connect = (state, dispatch) => {
   }
 };
 
-const queryChainInfo = async (api, state, dispatch) => {
+const queryChainInfo = async (api, dispatch) => {
   const chainInfo = {
     decimals: api.registry?.chainDecimals[0] || 12,
     token: (api.registry?.chainTokens[0] || 'DOT')?.toUpperCase(),
@@ -100,26 +125,82 @@ const queryChainInfo = async (api, state, dispatch) => {
   dispatch({ type: 'CONNECT_SUCCESS', payload: chainInfo });
 };
 
+///
+// Loading accounts from dev and polkadot-js extension
+let accountsLoaded = false;
+const loadKeyring = (state, dispatch) => {
+  const asyncLoadAccounts = async () => {
+    dispatch({ type: 'LOAD_KEYRING' });
+    try {
+      keyring.loadAll({
+        genesisHash: state.chainInfo?.genesisHash,
+        isDevelopment: config.DEVELOPMENT_KEYRING,
+        ss58Format: state.chainInfo?.ss58Format,
+      });
+
+      dispatch({ type: 'SET_KEYRING', payload: keyring });
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: 'KEYRING_ERROR' });
+    }
+  };
+  const { keyringState } = state;
+  // If `keyringState` is not null `asyncLoadAccounts` is running.
+  if (keyringState) return;
+  // If `accountsLoaded` is true, the `asyncLoadAccounts` has been run once.
+  if (accountsLoaded)
+    return dispatch({ type: 'SET_KEYRING', payload: keyring });
+
+  // This is the heavy duty work
+  accountsLoaded = true;
+  asyncLoadAccounts();
+};
+
+///
+// Load balances
+let balancesLoaded = false;
+const loadBalances = (state, dispatch) => {
+  // balances should only be loaded once, and then updates are happened through subscription
+  if (!balancesLoaded) {
+    balancesLoaded = true;
+    // get the balance for all addresses in keyring:
+    state.keyring.getAccounts().forEach(({ address }) => {
+      state.api.query.system.account(address, ({ data: balance }) => {
+        dispatch({ type: 'BALANCE_UPDATE', payload: { address, balance } });
+      });
+    });
+  }
+};
+
 const SubstrateContext = React.createContext({});
 
 const SubstrateContextProvider = (props) => {
   // filtering props and merge with default param value
   const initState = { ...INIT_STATE };
-  const [substrate, dispatch] = useReducer(reducer, initState);
+  const [state, dispatch] = useReducer(reducer, initState);
 
   useEffect(() => {
-    if (substrate.apiState === 'READY') {
-      let nameServiceProvider = new NameServiceProvider(substrate.api);
+    if (state.apiState === 'READY') {
+      // load pallet
+      let nameServiceProvider = new NameServiceProvider(state.api);
       nameServiceProvider?.initialize();
       dispatch({ type: 'SET_NS_PALLET', payload: nameServiceProvider });
     }
-  }, [substrate?.apiState, substrate?.api]);
+  }, [state?.apiState, state?.api]);
 
-  useEffect(() => {
-    connect(substrate, dispatch);
-  }, [connect]);
+  connect(state, dispatch);
 
-  const contextValue = { ...substrate, dispatch };
+  // load accounts when api is ready
+  if (state.apiState === 'READY') {
+    loadKeyring(state, dispatch);
+  }
+
+  if (state.apiState === 'READY' && state.keyringState === 'READY') {
+    loadBalances(state, dispatch);
+  }
+  console.log(state);
+
+  const contextValue = { ...state, dispatch };
   return (
     <SubstrateContext.Provider value={contextValue}>
       {props.children}

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import StepProgressBar from '../components/StepProgressBar';
 import { useParams } from 'react-router-dom';
 import { useSubstrate } from '../substrate/SubstrateContext';
-import { getAlice, get32BitSalt } from '../substrate/utils';
+import { get32BitSalt, getSigningAccount } from '../substrate/utils';
 import { useEffect } from 'react';
 
 interface CounterInputProps {
@@ -98,9 +98,8 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
     </div>
   );
 };
-
 const RegistrationCard = () => {
-  const { nameServiceProvider }: any = useSubstrate();
+  const { nameServiceProvider, connectedAccount }: any = useSubstrate();
   let { name } = useParams();
   let [leaseTime, setLeaseTime] = useState(1);
   let [currentStep, setCurrentStep] = useState(1);
@@ -167,24 +166,28 @@ const RegistrationCard = () => {
   } = getRegistrationButtonState(currentStep);
 
   const handleRegistrationReveal = async () => {
-    let aliceAccount = await getAlice();
-    nameServiceProvider.reveal(aliceAccount, name, salt, 3000).then(() => {
-      setCurrentStep(3);
-      setCurrentStepProgress(100);
-    });
+    let connectedSigningAccount = await getSigningAccount(connectedAccount);
+    nameServiceProvider
+      .reveal(connectedSigningAccount, name, salt, 3000)
+      .then(() => {
+        setCurrentStep(3);
+        setCurrentStepProgress(100);
+      });
     setCurrentStep(3);
     setCurrentStepProgress(50);
   };
 
   const handleRegistrationCommit = async () => {
-    let aliceAccount = await getAlice();
+    let connectedSigningAccount = await await getSigningAccount(
+      connectedAccount
+    );
     const salt = get32BitSalt();
     setSalt(salt);
     const commitHash = nameServiceProvider.generateCommitmentHashCodec(
       name,
       salt
     );
-    nameServiceProvider.commit(aliceAccount, commitHash).then(() => {
+    nameServiceProvider.commit(connectedSigningAccount, commitHash).then(() => {
       setCurrentStep(2);
       setCurrentStepProgress(0);
       let timer = setInterval(() => {

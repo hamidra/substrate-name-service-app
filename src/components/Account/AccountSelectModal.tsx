@@ -5,7 +5,7 @@ import { loadExtension } from '../../substrate/extension';
 import AccountItem from './AccountItem';
 const AccountSelectModal = ({ show, handleHide }) => {
   const { keyring, balances, connectedAccount, dispatch }: any = useSubstrate();
-  const accounts = keyring?.getAccounts();
+  const accounts = keyring?.getPairs();
   const getAccountBorder = (account) =>
     account?.address === connectedAccount?.address
       ? `border-primary`

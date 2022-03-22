@@ -24,7 +24,7 @@ const AccountConnect = () => {
   let { dispatch, ...state }: any = useSubstrate();
   let account = state?.connectedAccount;
   const clickHandler = async () => {
-    //loadExtension(state, dispatch);
+    loadExtension(state, dispatch);
     setShowModal(true);
   };
   return (

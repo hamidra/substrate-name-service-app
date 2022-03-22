@@ -11,7 +11,7 @@ const loadBalance = (state, dispatch, { address }) => {
   }
 };
 
-export const loadExtension = async (state, dispatch, chainInfo) => {
+export const loadExtension = async (state, dispatch) => {
   const { keyring } = state;
   // load extension only once, when api and keyring-ui are ready
   if (
@@ -44,9 +44,10 @@ export const loadExtension = async (state, dispatch, chainInfo) => {
       const newAccounts = extAccounts.filter((account) => {
         return (
           !loadedSet.has(account.address) &&
-          (!chainInfo?.genesisHash ||
+          (!state?.chainInfo?.genesisHash ||
             !account.meta?.genesisHash ||
-            account.meta?.genesisHash === chainInfo?.genesisHash?.toHex())
+            account.meta?.genesisHash ===
+              state?.chainInfo?.genesisHash?.toHex())
         );
       });
       console.log(newAccounts);

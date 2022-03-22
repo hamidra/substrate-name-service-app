@@ -25,6 +25,7 @@ const INIT_STATE = {
   keyringState: null,
   extensionState: null,
   balances: null,
+  connectedAccount: null,
 };
 
 ///
@@ -63,10 +64,11 @@ const reducer = (state, action) => {
       return { ...state, extensionState: 'ERROR' };
     case 'SET_EXTENSION':
       return { ...state, extensionState: 'READY' };
-    case 'BALANCE_UPDATE': {
+    case 'BALANCE_UPDATE':
       const { address, balance } = action.payload;
       return { ...state, balances: { ...state?.balances, [address]: balance } };
-    }
+    case 'CONNECT_ACCOUNT':
+      return { ...state, connectedAccount: action.payload };
     default:
       throw new Error(`Unknown type: ${action.type}`);
   }

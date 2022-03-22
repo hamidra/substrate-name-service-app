@@ -1,0 +1,22 @@
+- no resolver?! registries only include the address but no resolver address. (I guess makes sense since this is not smartcontract )
+- no registrars?! (subdomains are not supported yet)
+- hashing is not hierarchical
+- I guess we need to add address to the commitment, so UX can query if the account has commited or not.
+- commitment should be expired (schedule a decommitment)
+- secret is a number?!
+
+
+
+
+commitment-hash : [167, 226, 112, 14, 211, 167, 143, 114, 235, 83, 180, 209, 238, 124, 102, 16, 36, 219, 53, 50, 179, 49, 196, 71, 154, 29, 23, 26, 131, 116, 215, 185]
+13053954427070722000 '0x24c4069f51068d9f1b58972416bb275a0473a150d44549d4be3baaf8cae74665'
+
+
+
+## Items
+- add extension context to connect extension accounts
+- add registration price
+- convert block number to time (for registration and notification times)
+- add progress spinner and error handling
+- add registration extension button
+- proper UX when the case when the searched name is already registered by another account.

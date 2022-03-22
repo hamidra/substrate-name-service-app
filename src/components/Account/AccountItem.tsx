@@ -1,5 +1,4 @@
 import { Row, Col } from 'react-bootstrap';
-import styled from 'styled-components';
 import Identicon from '@polkadot/react-identicon';
 import { stringShorten } from '@polkadot/util';
 
@@ -10,18 +9,26 @@ interface AccountItemProps {
   accountAddress: string;
   accountName?: string;
   balanceStr?: string;
+  shortMode?: boolean;
 }
 const AccountItem = ({
   accountAddress,
   accountName,
   balanceStr,
+  shortMode,
+  ...rest
 }: AccountItemProps) => {
-  const nameStr = accountName && stringShorten(accountName, namePaddingLen);
+  const nameStr =
+    accountName &&
+    (shortMode ? stringShorten(accountName, namePaddingLen) : accountName);
   const addressStr =
-    accountAddress && stringShorten(accountAddress, addressPaddingLen);
+    accountAddress &&
+    (shortMode
+      ? stringShorten(accountAddress, addressPaddingLen)
+      : accountAddress);
 
   return (
-    <div className="d-flex align-items-center">
+    <div className="d-flex align-items-center" {...rest}>
       <div className="me-2">
         <Identicon value={accountAddress} size={40} theme="polkadot" />
       </div>

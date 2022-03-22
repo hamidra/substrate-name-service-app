@@ -1,7 +1,8 @@
-import { Nav, Navbar, Container } from 'react-bootstrap';
+import { Nav, Navbar, Button } from 'react-bootstrap';
 import AccountItem from '../components/Account/AccountItem';
 import PolkadotCircle from '../images/polkadot-circle.svg';
 import styled from 'styled-components';
+import AccountConnect from './Account/AccountConnect';
 const Logo = styled.img`
   width: 2.5rem;
   height: 2.5rem;
@@ -9,7 +10,7 @@ const Logo = styled.img`
 
 const RoundedAccountItem = styled(AccountItem)``;
 
-const Header = ({ account }) => {
+const Header = () => {
   return (
     <>
       <Navbar className="px-4 py-3" variant="dark">
@@ -32,18 +33,18 @@ const Header = ({ account }) => {
           className="justify-content-center"
         ></Navbar.Collapse>
         <div className="d-flex justify-content-end">
-          {account && (
+          {
             <>
               <Nav className="d-none d-sm-block flex-grow-0 justify-content-end mr-2 shadow rounded-pill">
                 <div
                   style={{ minWidth: '5rem', fontWeight: '400' }}
                   className="py-2 px-3 text-center h-100 d-flex"
                 >
-                  <AccountItem accountAddress={account?.address} />
+                  <AccountConnect />
                 </div>
               </Nav>
             </>
-          )}
+          }
         </div>
       </Navbar>
     </>

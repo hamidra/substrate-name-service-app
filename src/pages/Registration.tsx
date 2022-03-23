@@ -100,7 +100,7 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
     </div>
   );
 };
-const RegistrationCard = () => {
+const RegistrationForm = () => {
   const { nameServiceProvider, connectedAccount }: any = useSubstrate();
   const {
     tierThreeLetters,
@@ -225,7 +225,7 @@ const RegistrationCard = () => {
   const handleRegistrationReveal = async () => {
     let connectedSigningAccount = await getSigningAccount(connectedAccount);
     nameServiceProvider
-      .reveal(connectedSigningAccount, name, salt, 3000)
+      .reveal(connectedSigningAccount, name, salt, leasePeriod)
       .then(() => {
         setCurrentStep(3);
         setCurrentStepProgress(100);
@@ -307,4 +307,25 @@ const RegistrationCard = () => {
   );
 };
 
+const RegistrationCard = () => {
+  const { nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const { name } = useParams();
+  const [registration, setRegistration] = useState(null);
+  useEffect(() => {
+    if (name) {
+      nameServiceProvider
+        ?.getRegistration(name)
+        .then((registration) => setRegistration(registration));
+    }
+  }, [name]);
+  return (
+    <>
+      {!registration ? (
+        <RegistrationForm />
+      ) : (
+        <div>{`${name} is already registered.`}</div>
+      )}
+    </>
+  );
+};
 export default RegistrationCard;

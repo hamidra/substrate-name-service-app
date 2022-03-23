@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Card } from 'react-bootstrap';
 import NameButtonNavbar from '../components/ButtonNavbar';
 
 const NameDetailsCard = () => {
+  const { name } = useParams();
+
+  useEffect(() => {
+    console.log('name detail');
+  }, [name]);
+
   return (
     <>
       <form className="p-3">

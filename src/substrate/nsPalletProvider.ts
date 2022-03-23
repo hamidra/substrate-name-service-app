@@ -70,11 +70,13 @@ class NameServiceProvider {
     return this.apiClient.query.nameService.commitments(commitmentHash);
   }
 
-  async getRegistration(nameHash) {
+  async getRegistration(name) {
+    const nameHash = this.generateNameHash(name);
     return this.apiClient.query.nameService.registrations(nameHash);
   }
 
-  async getResolver(nameHash) {
+  async getResolver(name) {
+    const nameHash = this.generateNameHash(name);
     return this.apiClient.query.nameService.resolvers(nameHash);
   }
 

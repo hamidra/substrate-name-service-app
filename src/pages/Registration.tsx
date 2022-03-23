@@ -4,19 +4,21 @@ import { useParams } from 'react-router-dom';
 import { useSubstrate } from '../substrate/SubstrateContext';
 import { get32BitSalt, getSigningAccount } from '../substrate/utils';
 import { useEffect } from 'react';
+import BN from 'bn.js';
 
 interface CounterInputProps {
   unit?: string;
-  value: any;
-  setValue: (any) => void;
+  value: number;
+  step: number;
+  setValue: (value: number) => void;
 }
-const CounterInput = ({ unit, value, setValue }: CounterInputProps) => {
+const CounterInput = ({ unit, value, step, setValue }: CounterInputProps) => {
   return (
     <div className="input-group">
       <button
         className="btn btn-outline-secondary"
         type="button"
-        onClick={() => setValue(value - 1)}
+        onClick={() => setValue(value - step)}
       >
         -
       </button>
@@ -25,13 +27,13 @@ const CounterInput = ({ unit, value, setValue }: CounterInputProps) => {
         className="form-control"
         aria-label="counter input"
         value={value}
-        onChange={(value) => setValue(value)}
+        onChange={(e) => setValue(parseInt(e?.target?.value))}
       />
       <span className="input-group-text">{unit}</span>
       <button
         className="btn btn-outline-secondary"
         type="button"
-        onClick={() => setValue(value + 1)}
+        onClick={() => setValue(value + step)}
       >
         +
       </button>
@@ -100,8 +102,15 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
 };
 const RegistrationCard = () => {
   const { nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const {
+    tierThreeLetters,
+    tierFourLetters,
+    tierDefault,
+    blocksPerRegistrationPeriod: blocksPerPeriod,
+    feePerRegistrationPeriod: feePerPeriod,
+  } = nameServiceProvider?.constants || {};
   let { name } = useParams();
-  let [leaseTime, setLeaseTime] = useState(1);
+  let [leasePeriod, setLeasePeriod] = useState(new BN(1));
   let [currentStep, setCurrentStep] = useState(1);
   let [currentStepProgress, setCurrentStepProgress] = useState(0);
   let currentStepProgressRef = useRef(currentStepProgress);
@@ -129,6 +138,54 @@ const RegistrationCard = () => {
   useEffect(() => {
     loadRegistrationState();
   }, []);
+
+  const getTierFee = (name: string): BN => {
+    let charCount = name?.length;
+    let fee = new BN(0);
+    if (charCount) {
+      if (charCount <= 3) {
+        fee = tierThreeLetters;
+      } else if (charCount === 4) {
+        fee = tierFourLetters;
+      } else {
+        fee = tierDefault;
+      }
+    }
+    return fee;
+  };
+  const getRegistrationFee = (name: string, periods: BN): BN => {
+    let label = name?.split('.')[0];
+    if (!label || !periods || !feePerPeriod) {
+      return;
+    }
+    let baseFee = getTierFee(label);
+    let periodFee = periods.mul(feePerPeriod);
+    let regFee = baseFee.add(periodFee);
+    return regFee;
+  };
+
+  const _setLeasePeriodInBlocks = (blockCount: number) => {
+    let blockCountBN = new BN(blockCount);
+    let leasePeriod = blockCountBN.div(blocksPerPeriod);
+    let roundup = blockCountBN.mod(blocksPerPeriod).eqn(0) ? 0 : 1;
+    console.log(roundup);
+    leasePeriod = leasePeriod.addn(roundup);
+    setLeasePeriod(leasePeriod);
+  };
+  const _getLeasePeriodInBlocks = (): number => {
+    let blockCount;
+    if (leasePeriod && blocksPerPeriod) {
+      blockCount = leasePeriod.mul(blocksPerPeriod).toNumber();
+    }
+    return blockCount;
+  };
+
+  const _setLeasePeriod = (periods: number) => {
+    setLeasePeriod(new BN(periods));
+  };
+  const _getLeasePeriod = (): number => {
+    return leasePeriod.toNumber();
+  };
 
   const getRegistrationButtonState = (step) => {
     let state = {
@@ -214,14 +271,18 @@ const RegistrationCard = () => {
         <div className="row justify-content-between">
           <div className="col-12 col-md-6 my-2">
             <CounterInput
-              value={leaseTime}
-              setValue={setLeaseTime}
-              unit={leaseTime === 1 ? 'year' : 'years'}
+              value={_getLeasePeriod()}
+              unit={`x ${blocksPerPeriod} blocks`}
+              step={1}
+              setValue={(value) => _setLeasePeriod(value)}
             />
             <div className="form-text">Registration Period</div>
           </div>
           <div className="col-12 col-md-6 my-2">
-            <div className="fw-light fs-4">{`${leaseTime * 2} DOT`}</div>
+            <div className="fw-light fs-4">{`${getRegistrationFee(
+              name,
+              leasePeriod
+            )} DOT`}</div>
             <div className="form-text">Registration Price</div>
           </div>
         </div>

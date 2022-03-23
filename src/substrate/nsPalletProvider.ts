@@ -11,6 +11,7 @@ interface NameServiceConstants {
   tierDefault: number;
   blocksPerRegistrationPeriod: number;
   notificationPeriod: number;
+  feePerRegistrationPeriod: number;
 }
 
 class NameServiceProvider {
@@ -21,19 +22,20 @@ class NameServiceProvider {
   }
   initialize() {
     this.constants.commitmentDeposit =
-      this.apiClient.consts.nameService?.commitmentDeposit?.toHuman();
+      this.apiClient.consts.nameService?.commitmentDeposit;
     this.constants.nameDeposit =
-      this.apiClient.consts.nameService?.commitmentDeposit?.toHuman();
+      this.apiClient.consts.nameService?.commitmentDeposit;
     this.constants.tierThreeLetters =
-      this.apiClient.consts.nameService?.tierThreeLetters?.toHuman();
+      this.apiClient.consts.nameService?.tierThreeLetters;
     this.constants.tierFourLetters =
-      this.apiClient.consts.nameService?.tierFourLetters?.toHuman();
-    this.constants.tierDefault =
-      this.apiClient.consts.nameService?.tierDefault?.toHuman();
+      this.apiClient.consts.nameService?.tierFourLetters;
+    this.constants.tierDefault = this.apiClient.consts.nameService?.tierDefault;
     this.constants.blocksPerRegistrationPeriod =
-      this.apiClient.consts.nameService?.blocksPerRegistrationPeriod?.toHuman();
+      this.apiClient.consts.nameService?.blocksPerRegistrationPeriod;
     this.constants.notificationPeriod =
-      this.apiClient.consts.nameService?.notificationPeriod?.toHuman();
+      this.apiClient.consts.nameService?.notificationPeriod;
+    this.constants.feePerRegistrationPeriod =
+      this.apiClient.consts.nameService?.feePerRegistrationPeriod;
     console.log(this.constants);
   }
 

@@ -41,13 +41,13 @@ export const getSigningAccount = async (account) => {
 //  ref implementation:
 //  https://github.com/polkadot-js/apps/blob/7f0a05ca67bbcda7066892f51118a0db9b232b33/packages/react-hooks/src/useBlockInterval.ts#L14-L38
 ///
-export const calcInterval = (api) => {
+export const calcBlockTime = (api): number => {
   // Some chains incorrectly use these, i.e. it is set to values such as 0 or even 2
   // Use a low minimum validity threshold to check these against
   const THRESHOLD = new BN(1000).divn(2);
   const DEFAULT_TIME = new BN(6_000);
   const A_DAY = new BN(24 * 60 * 60 * 1000);
-  return bnMin(
+  const blockTimeBN = bnMin(
     A_DAY,
     // Babe, e.g. Relay chains (Substrate defaults)
     api.consts.babe?.expectedBlockTime ||
@@ -65,4 +65,21 @@ export const calcInterval = (api) => {
         : // default guess for others
           DEFAULT_TIME)
   );
+  return blockTimeBN.toNumber();
+};
+
+export const blockCountToTimestampMs = (
+  blockTimeMs: number,
+  blockCount: number
+): number => {
+  return blockTimeMs * blockCount;
+};
+
+export const getBlockTimestampMs = async (
+  currentBlock: { number: number; timestamp: number },
+  blockNumber,
+  blockTimeMs
+): Promise<number> => {
+  let blockCount = blockNumber - currentBlock.number;
+  return currentBlock.timestamp + blockCount * blockTimeMs;
 };

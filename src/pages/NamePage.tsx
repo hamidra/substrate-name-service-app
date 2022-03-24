@@ -9,6 +9,7 @@ import {
 import NameButtonNavbar from '../components/ButtonNavbar';
 import styled from 'styled-components';
 import { useSubstrate } from '../substrate/SubstrateContext';
+import { calcBlockTime } from '../substrate/utils';
 
 type ContextType = { nameRegistration: any | null };
 
@@ -35,7 +36,7 @@ const NamePage = ({ className }: NamePageProps) => {
   let tabBasePath = getTabBasePath(location.pathname);
   let tabTitles = ['Register', 'Details', 'Subdomains'];
   let tabs = getTabs(tabTitles, tabBasePath);
-  const { nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const { api, nameServiceProvider, connectedAccount }: any = useSubstrate();
   const [nameRegistration, setNameRegistration] = useState();
 
   useEffect(() => {
@@ -46,7 +47,7 @@ const NamePage = ({ className }: NamePageProps) => {
     }
   }, [name, nameServiceProvider]);
 
-  console.log('name page refreshed');
+  let blockTime = api && calcBlockTime(api));
   return (
     <div className={`container justi-content-center`}>
       <Card className={`m-sm-5 ${className}`}>

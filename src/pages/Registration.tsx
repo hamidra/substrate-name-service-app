@@ -49,7 +49,7 @@ const CounterInput = ({ unit, value, step, setValue }: CounterInputProps) => {
   );
 };
 
-const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
+export const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
   let { name } = useParams();
   const { api, nameServiceProvider, connectedAccount }: any = useSubstrate();
   const {

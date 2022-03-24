@@ -95,6 +95,12 @@ class NameServiceProvider {
     let revealTx = this.apiClient.tx.nameService.reveal(name, secret, periods);
     return signAndSendTx(this.apiClient, revealTx, account);
   }
+
+  async renew(account, name, periods) {
+    const nameHash = this.generateNameHash(name);
+    let renewTx = this.apiClient.tx.nameService.renew(nameHash, periods);
+    return signAndSendTx(this.apiClient, renewTx, account);
+  }
 }
 
 export default NameServiceProvider;

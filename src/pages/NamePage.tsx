@@ -47,7 +47,7 @@ const NamePage = ({ className }: NamePageProps) => {
     }
   }, [name, nameServiceProvider]);
 
-  let blockTime = api && calcBlockTime(api));
+  let blockTime = api && calcBlockTime(api);
   return (
     <div className={`container justi-content-center`}>
       <Card className={`m-sm-5 ${className}`}>

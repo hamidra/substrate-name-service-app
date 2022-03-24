@@ -68,7 +68,7 @@ export const calcBlockTime = (api): number => {
   return blockTimeBN.toNumber();
 };
 
-export const blockCountToTimestampMs = (
+export const blockCountToTimespanMs = (
   blockTimeMs: number,
   blockCount: number
 ): number => {

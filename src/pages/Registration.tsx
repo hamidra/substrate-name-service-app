@@ -2,10 +2,17 @@ import { useState, useRef } from 'react';
 import StepProgressBar from '../components/StepProgressBar';
 import { useParams } from 'react-router-dom';
 import { useSubstrate } from '../substrate/SubstrateContext';
-import { get32BitSalt, getSigningAccount } from '../substrate/utils';
+import {
+  get32BitSalt,
+  getSigningAccount,
+  calcBlockTime,
+  blockCountToTimespanMs,
+  getBlockTimestampMs,
+} from '../substrate/utils';
 import { useEffect } from 'react';
 import BN from 'bn.js';
 import { useNameRegistration } from './NamePage';
+import moment from 'moment';
 
 interface CounterInputProps {
   unit?: string;
@@ -102,7 +109,7 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
   );
 };
 const RegistrationForm = () => {
-  const { nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const { api, nameServiceProvider, connectedAccount }: any = useSubstrate();
   const {
     tierThreeLetters,
     tierFourLetters,
@@ -186,6 +193,16 @@ const RegistrationForm = () => {
   };
   const _getLeasePeriod = (): number => {
     return leasePeriod.toNumber();
+  };
+  const _getLeasePeriodDisplay = (): string => {
+    let leasePeriodDisplay = '';
+    if (api) {
+      let leaseBlockCount = _getLeasePeriodInBlocks();
+      let blocktimeMs = calcBlockTime(api);
+      let leaseTimespan = blockCountToTimespanMs(blocktimeMs, leaseBlockCount);
+      leasePeriodDisplay = moment.duration(leaseTimespan).humanize();
+    }
+    return leasePeriodDisplay;
   };
 
   const getRegistrationButtonState = (step) => {
@@ -277,6 +294,7 @@ const RegistrationForm = () => {
               step={1}
               setValue={(value) => _setLeasePeriod(value)}
             />
+            <div>{`for estimated lease time of ${_getLeasePeriodDisplay()}`}</div>
             <div className="form-text">Registration Period</div>
           </div>
           <div className="col-12 col-md-6 my-2">
@@ -284,6 +302,7 @@ const RegistrationForm = () => {
               name,
               leasePeriod
             )} DOT`}</div>
+            <div>{`+ 0.001 DOT tx fees`}</div>
             <div className="form-text">Registration Price</div>
           </div>
         </div>

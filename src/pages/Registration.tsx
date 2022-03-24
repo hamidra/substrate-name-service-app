@@ -49,6 +49,92 @@ const CounterInput = ({ unit, value, step, setValue }: CounterInputProps) => {
   );
 };
 
+const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
+  let { name } = useParams();
+  const { api, nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const {
+    tierThreeLetters,
+    tierFourLetters,
+    tierDefault,
+    blocksPerRegistrationPeriod: blocksPerPeriod,
+    feePerRegistrationPeriod: feePerPeriod,
+  } = nameServiceProvider?.constants || {};
+
+  const getTierFee = (name: string): BN => {
+    let charCount = name?.length;
+    let fee = new BN(0);
+    if (charCount) {
+      if (charCount <= 3) {
+        fee = tierThreeLetters;
+      } else if (charCount === 4) {
+        fee = tierFourLetters;
+      } else {
+        fee = tierDefault;
+      }
+    }
+    return fee;
+  };
+  const getRegistrationFee = (name: string, periods: BN): BN => {
+    let label = name?.split('.')[0];
+    if (!label || !periods || !feePerPeriod) {
+      return;
+    }
+    let baseFee = getTierFee(label);
+    let periodFee = periods.mul(feePerPeriod);
+    let regFee = baseFee.add(periodFee);
+    return regFee;
+  };
+
+  const _setLeasePeriod = (periods: number) => {
+    setLeasePeriod(new BN(periods));
+  };
+  const _getLeasePeriod = (): number => {
+    return leasePeriod.toNumber();
+  };
+
+  const _getLeasePeriodInBlocks = (): number => {
+    let blockCount;
+    if (leasePeriod && blocksPerPeriod) {
+      blockCount = leasePeriod.mul(blocksPerPeriod).toNumber();
+    }
+    return blockCount;
+  };
+
+  const _getLeasePeriodDisplay = (): string => {
+    let leasePeriodDisplay = '';
+    if (api) {
+      let leaseBlockCount = _getLeasePeriodInBlocks();
+      let blocktimeMs = calcBlockTime(api);
+      let leaseTimespan = blockCountToTimespanMs(blocktimeMs, leaseBlockCount);
+      leasePeriodDisplay = moment.duration(leaseTimespan).humanize();
+    }
+    return leasePeriodDisplay;
+  };
+
+  return (
+    <div className="row justify-content-between">
+      <div className="col-12 col-md-6 my-2">
+        <CounterInput
+          value={_getLeasePeriod()}
+          unit={`x ${blocksPerPeriod} blocks`}
+          step={1}
+          setValue={(value) => _setLeasePeriod(value)}
+        />
+        <div>{`for estimated lease time of ${_getLeasePeriodDisplay()}`}</div>
+        <div className="form-text">Registration Period</div>
+      </div>
+      <div className="col-12 col-md-6 my-2">
+        <div className="fw-light fs-4">{`${getRegistrationFee(
+          name,
+          leasePeriod
+        )} DOT`}</div>
+        <div>{`+ 0.001 DOT tx fees`}</div>
+        <div className="form-text">Registration Price</div>
+      </div>
+    </div>
+  );
+};
+
 const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
   return (
     <div>
@@ -109,20 +195,14 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
   );
 };
 const RegistrationForm = () => {
-  const { api, nameServiceProvider, connectedAccount }: any = useSubstrate();
-  const {
-    tierThreeLetters,
-    tierFourLetters,
-    tierDefault,
-    blocksPerRegistrationPeriod: blocksPerPeriod,
-    feePerRegistrationPeriod: feePerPeriod,
-  } = nameServiceProvider?.constants || {};
+  const { nameServiceProvider, connectedAccount }: any = useSubstrate();
   let { name } = useParams();
   let [leasePeriod, setLeasePeriod] = useState(new BN(1));
   let [currentStep, setCurrentStep] = useState(1);
   let [currentStepProgress, setCurrentStepProgress] = useState(0);
   let currentStepProgressRef = useRef(currentStepProgress);
   let [salt, setSalt] = useState(null);
+
   const loadRegistrationState = async () => {
     const nameSalt = localStorage.getItem(name);
     if (nameSalt) {
@@ -146,64 +226,6 @@ const RegistrationForm = () => {
   useEffect(() => {
     loadRegistrationState();
   }, []);
-
-  const getTierFee = (name: string): BN => {
-    let charCount = name?.length;
-    let fee = new BN(0);
-    if (charCount) {
-      if (charCount <= 3) {
-        fee = tierThreeLetters;
-      } else if (charCount === 4) {
-        fee = tierFourLetters;
-      } else {
-        fee = tierDefault;
-      }
-    }
-    return fee;
-  };
-  const getRegistrationFee = (name: string, periods: BN): BN => {
-    let label = name?.split('.')[0];
-    if (!label || !periods || !feePerPeriod) {
-      return;
-    }
-    let baseFee = getTierFee(label);
-    let periodFee = periods.mul(feePerPeriod);
-    let regFee = baseFee.add(periodFee);
-    return regFee;
-  };
-
-  const _setLeasePeriodInBlocks = (blockCount: number) => {
-    let blockCountBN = new BN(blockCount);
-    let leasePeriod = blockCountBN.div(blocksPerPeriod);
-    let roundup = blockCountBN.mod(blocksPerPeriod).eqn(0) ? 0 : 1;
-    console.log(roundup);
-    leasePeriod = leasePeriod.addn(roundup);
-    setLeasePeriod(leasePeriod);
-  };
-  const _getLeasePeriodInBlocks = (): number => {
-    let blockCount;
-    if (leasePeriod && blocksPerPeriod) {
-      blockCount = leasePeriod.mul(blocksPerPeriod).toNumber();
-    }
-    return blockCount;
-  };
-
-  const _setLeasePeriod = (periods: number) => {
-    setLeasePeriod(new BN(periods));
-  };
-  const _getLeasePeriod = (): number => {
-    return leasePeriod.toNumber();
-  };
-  const _getLeasePeriodDisplay = (): string => {
-    let leasePeriodDisplay = '';
-    if (api) {
-      let leaseBlockCount = _getLeasePeriodInBlocks();
-      let blocktimeMs = calcBlockTime(api);
-      let leaseTimespan = blockCountToTimespanMs(blocktimeMs, leaseBlockCount);
-      leasePeriodDisplay = moment.duration(leaseTimespan).humanize();
-    }
-    return leasePeriodDisplay;
-  };
 
   const getRegistrationButtonState = (step) => {
     let state = {
@@ -286,26 +308,10 @@ const RegistrationForm = () => {
   return (
     <>
       <form className="px-2">
-        <div className="row justify-content-between">
-          <div className="col-12 col-md-6 my-2">
-            <CounterInput
-              value={_getLeasePeriod()}
-              unit={`x ${blocksPerPeriod} blocks`}
-              step={1}
-              setValue={(value) => _setLeasePeriod(value)}
-            />
-            <div>{`for estimated lease time of ${_getLeasePeriodDisplay()}`}</div>
-            <div className="form-text">Registration Period</div>
-          </div>
-          <div className="col-12 col-md-6 my-2">
-            <div className="fw-light fs-4">{`${getRegistrationFee(
-              name,
-              leasePeriod
-            )} DOT`}</div>
-            <div>{`+ 0.001 DOT tx fees`}</div>
-            <div className="form-text">Registration Price</div>
-          </div>
-        </div>
+        <RegistrationLeasePeriod
+          leasePeriod={leasePeriod}
+          setLeasePeriod={(leasePeriod) => setLeasePeriod(leasePeriod)}
+        />
         <RegistrationSteps
           currentStep={currentStep}
           currentStepProgress={currentStepProgress}

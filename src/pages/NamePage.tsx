@@ -38,14 +38,17 @@ const NamePage = ({ className }: NamePageProps) => {
   let tabs = getTabs(tabTitles, tabBasePath);
   const { api, nameServiceProvider, connectedAccount }: any = useSubstrate();
   const [nameRegistration, setNameRegistration] = useState();
-
   useEffect(() => {
     if (name) {
       nameServiceProvider?.getRegistration(name).then((reg) => {
         setNameRegistration(reg?.unwrapOr(null)?.toJSON());
       });
     }
-  }, [name, nameServiceProvider]);
+  }, [
+    name,
+    nameServiceProvider,
+    location?.pathname /* need to query registration everytime location (tab) changes */,
+  ]);
 
   let blockTime = api && calcBlockTime(api);
   return (

@@ -1,35 +1,34 @@
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { Card } from 'react-bootstrap';
-import NameButtonNavbar from '../components/ButtonNavbar';
+import { useNameRegistration } from './NamePage';
 
 const NameDetailsCard = () => {
   const { name } = useParams();
-
-  useEffect(() => {
-    console.log('name detail');
-  }, [name]);
-
+  const { nameRegistration } = useNameRegistration();
   return (
     <>
       <form className="p-3">
         <div className="mb-3 row">
           <label className="col-sm-4 col-form-label">Parent</label>
           <div className="col-sm-8">
-            <div>eth</div>
+            <div>.dot</div>
           </div>
         </div>
         <div className="mb-3 row">
           <label className="col-sm-4 col-form-label">REGISTRANT</label>
           <div className="col-sm-8">
-            <div>Not registered</div>
+            <div>
+              {nameRegistration
+                ? nameRegistration.registrant
+                : `Not registered`}
+            </div>
           </div>
         </div>
-
         <div className="mb-3 row">
           <label className="col-sm-4 col-form-label">CONTROLLER</label>
           <div className="col-sm-8">
-            <div>Not owned</div>
+            <div>
+              {nameRegistration ? nameRegistration.owner : `Not registered`}
+            </div>
           </div>
         </div>
       </form>

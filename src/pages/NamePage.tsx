@@ -1,7 +1,16 @@
+import { useState, useEffect } from 'react';
 import { Card } from 'react-bootstrap';
-import { useParams, Outlet, useLocation } from 'react-router-dom';
+import {
+  useParams,
+  Outlet,
+  useLocation,
+  useOutletContext,
+} from 'react-router-dom';
 import NameButtonNavbar from '../components/ButtonNavbar';
 import styled from 'styled-components';
+import { useSubstrate } from '../substrate/SubstrateContext';
+
+type ContextType = { nameRegistration: any | null };
 
 const getTabBasePath = (currentPath) => {
   let currentParts = currentPath.split('/');
@@ -26,6 +35,18 @@ const NamePage = ({ className }: NamePageProps) => {
   let tabBasePath = getTabBasePath(location.pathname);
   let tabTitles = ['Register', 'Details', 'Subdomains'];
   let tabs = getTabs(tabTitles, tabBasePath);
+  const { nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const [nameRegistration, setNameRegistration] = useState();
+
+  useEffect(() => {
+    if (name) {
+      nameServiceProvider?.getRegistration(name).then((reg) => {
+        setNameRegistration(reg?.unwrapOr(null)?.toJSON());
+      });
+    }
+  }, [name, nameServiceProvider]);
+
+  console.log('name page refreshed');
   return (
     <div className={`container justi-content-center`}>
       <Card className={`m-sm-5 ${className}`}>
@@ -38,7 +59,7 @@ const NamePage = ({ className }: NamePageProps) => {
           </div>
         </Card.Header>
         <Card.Body>
-          <Outlet />
+          <Outlet context={{ nameRegistration }} />
         </Card.Body>
       </Card>
     </div>
@@ -49,3 +70,7 @@ const styledNamePage = styled(NamePage)`
   max-width: 1000px;
 `;
 export default styledNamePage;
+
+export function useNameRegistration() {
+  return useOutletContext<ContextType>();
+}

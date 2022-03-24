@@ -5,6 +5,7 @@ import { useSubstrate } from '../substrate/SubstrateContext';
 import { get32BitSalt, getSigningAccount } from '../substrate/utils';
 import { useEffect } from 'react';
 import BN from 'bn.js';
+import { useNameRegistration } from './NamePage';
 
 interface CounterInputProps {
   unit?: string;
@@ -310,17 +311,11 @@ const RegistrationForm = () => {
 const RegistrationCard = () => {
   const { nameServiceProvider, connectedAccount }: any = useSubstrate();
   const { name } = useParams();
-  const [registration, setRegistration] = useState(null);
-  useEffect(() => {
-    if (name) {
-      nameServiceProvider
-        ?.getRegistration(name)
-        .then((registration) => setRegistration(registration));
-    }
-  }, [name]);
+  const { nameRegistration } = useNameRegistration();
+
   return (
     <>
-      {!registration ? (
+      {!nameRegistration ? (
         <RegistrationForm />
       ) : (
         <div>{`${name} is already registered.`}</div>

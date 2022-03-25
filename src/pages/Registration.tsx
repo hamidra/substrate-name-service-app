@@ -129,13 +129,13 @@ export const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
           step={1}
           setValue={(value) => _setLeasePeriod(value)}
         />
-        <div>{`for estimated lease time of ${_getLeasePeriodDisplay()}`}</div>
-        <div className="form-text">Registration Period</div>
+        <div className="mb-2 form-text">Registration Period</div>
+        <div>{`for estimated registration period of ${_getLeasePeriodDisplay()}`}</div>
       </div>
       <div className="col-12 col-md-6 my-2">
         <div className="fw-light fs-4">{`${registrationFeeDisplay} DOT`}</div>
+        <div className="mb-2 form-text">Registration Price</div>
         <div>{`+ 0.001 DOT tx fees`}</div>
-        <div className="form-text">Registration Price</div>
       </div>
     </div>
   );

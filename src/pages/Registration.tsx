@@ -8,6 +8,7 @@ import {
   calcBlockTimeMs,
   blockCountToTimespanMs,
   getBlockTimestampMs,
+  fromChainUnit,
 } from '../substrate/utils';
 import { useEffect } from 'react';
 import BN from 'bn.js';
@@ -86,6 +87,13 @@ export const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
     return regFee;
   };
 
+  const registrationFee = getRegistrationFee(name, leasePeriod);
+  const registrationFeeDisplay = fromChainUnit(
+    registrationFee,
+    chainInfo?.decimals,
+    5
+  );
+
   const _setLeasePeriod = (periods: number) => {
     setLeasePeriod(new BN(periods));
   };
@@ -125,10 +133,7 @@ export const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
         <div className="form-text">Registration Period</div>
       </div>
       <div className="col-12 col-md-6 my-2">
-        <div className="fw-light fs-4">{`${getRegistrationFee(
-          name,
-          leasePeriod
-        )} DOT`}</div>
+        <div className="fw-light fs-4">{`${registrationFeeDisplay} DOT`}</div>
         <div>{`+ 0.001 DOT tx fees`}</div>
         <div className="form-text">Registration Price</div>
       </div>

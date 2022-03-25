@@ -4,6 +4,23 @@ import { web3FromSource } from '@polkadot/extension-dapp';
 import { BN } from 'bn.js';
 import { bnMin } from '@polkadot/util';
 
+/**
+ * trims the specified character from the end of the string.
+ * @param str the input string to be trimmed
+ * @param char the character that is going to be trimmed
+ * @returns the final trimmed string by removing all occurances of the char from the end of input string
+ */
+const trimEnd = (str, char) => {
+  if (!str) {
+    return str;
+  }
+  let i = str.length;
+  while (i > 0 && str.charAt(i - 1) === char) {
+    i -= 1;
+  }
+  return str.substring(0, i);
+};
+
 export const get32BitSalt = () => {
   return Math.floor(Math.random() * 2 ** 32);
 };
@@ -82,4 +99,54 @@ export const getBlockTimestampMs = (
 ): number => {
   let blockCount = blockNumber - currentBlock.number;
   return currentBlock.timestamp + blockCount * blockTimeMs;
+};
+
+/**
+ * convert a value from chain unit to a base 10 decimal number
+ * @param {*} value the value in chain unit (in string or BN)
+ * @param {*} chainDecimal chain token decimals
+ * @param {*} decimalPoints number of digits to keep after decimal points
+ * @returns  the value in base 10 decimal format in string
+ */
+export const fromChainUnit = (value, chainDecimal, decimalPoints) => {
+  if ((!value && value != 0) || !chainDecimal) {
+    return null;
+  }
+  chainDecimal = parseInt(chainDecimal);
+  value = new BN(value);
+  const B10 = new BN(10);
+  const BChainUnit = B10.pow(new BN(chainDecimal));
+  const dm = value.divmod(BChainUnit);
+  const wholeStr = dm.div.toString();
+  let decimalStr = dm.mod.toString().padStart(chainDecimal, '0');
+  if (decimalPoints || decimalPoints === 0) {
+    decimalStr = decimalStr?.slice(0, decimalPoints);
+  }
+  decimalStr = trimEnd(decimalStr, '0');
+  let result = wholeStr;
+
+  if (decimalStr) {
+    result += `.${decimalStr}`;
+  }
+  return result;
+};
+
+export const toChainUnit = (value, chainDecimal) => {
+  if ((!value && value != 0) || !chainDecimal) {
+    return null;
+  }
+  value = value.toString();
+  chainDecimal = parseInt(chainDecimal);
+  const B10 = new BN(10);
+  let [wholeVal, decimalVal] = value.split('.');
+  decimalVal = decimalVal && decimalVal.substr(0, chainDecimal);
+  const decimalValLen = decimalVal?.length || 0;
+  const BWholeVal = new BN(wholeVal);
+  const BDecimalVal = new BN(decimalVal || 0);
+
+  const BChainWholeVal = BWholeVal.mul(B10.pow(new BN(chainDecimal)));
+  const BChainDecimalVal = BDecimalVal.mul(
+    B10.pow(new BN(chainDecimal - decimalValLen))
+  );
+  return BChainWholeVal.add(BChainDecimalVal);
 };

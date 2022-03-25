@@ -9,7 +9,7 @@ import {
 import NameButtonNavbar from '../components/ButtonNavbar';
 import styled from 'styled-components';
 import { useSubstrate } from '../substrate/SubstrateContext';
-import { calcBlockTime } from '../substrate/utils';
+import { calcBlockTimeMs } from '../substrate/utils';
 
 type ContextType = { nameRegistration: any | null };
 
@@ -50,7 +50,7 @@ const NamePage = ({ className }: NamePageProps) => {
     location?.pathname /* need to query registration everytime location (tab) changes */,
   ]);
 
-  let blockTime = api && calcBlockTime(api);
+  let blockTime = api && calcBlockTimeMs(api);
   return (
     <div className={`container justi-content-center`}>
       <Card className={`m-sm-5 ${className}`}>

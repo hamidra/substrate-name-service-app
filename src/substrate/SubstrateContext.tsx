@@ -5,6 +5,7 @@ import config from '../config';
 import BN from 'bn.js';
 import NameServiceProvider from './nsPalletProvider';
 import keyring from '@polkadot/ui-keyring';
+import { calcBlockTimeMs } from './utils';
 
 const parsedQuery = queryString.parse(window.location.search);
 const connectedSocket = parsedQuery.rpc || config.PROVIDER_SOCKET;
@@ -116,6 +117,7 @@ const queryChainInfo = async (api, dispatch) => {
     existentialDeposit:
       api.consts?.balances?.existentialDeposit || new BN(0, 10),
     chainName: await api.rpc.system.chain(),
+    blockTimeMs: calcBlockTimeMs(api),
   };
 
   // ToDo: remove this when the pallet is deployed on polkadot

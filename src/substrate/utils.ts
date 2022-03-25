@@ -41,7 +41,7 @@ export const getSigningAccount = async (account) => {
 //  ref implementation:
 //  https://github.com/polkadot-js/apps/blob/7f0a05ca67bbcda7066892f51118a0db9b232b33/packages/react-hooks/src/useBlockInterval.ts#L14-L38
 ///
-export const calcBlockTime = (api): number => {
+export const calcBlockTimeMs = (api): number => {
   // Some chains incorrectly use these, i.e. it is set to values such as 0 or even 2
   // Use a low minimum validity threshold to check these against
   const THRESHOLD = new BN(1000).divn(2);
@@ -75,11 +75,11 @@ export const blockCountToTimespanMs = (
   return blockTimeMs * blockCount;
 };
 
-export const getBlockTimestampMs = async (
+export const getBlockTimestampMs = (
   currentBlock: { number: number; timestamp: number },
-  blockNumber,
-  blockTimeMs
-): Promise<number> => {
+  blockNumber: number,
+  blockTimeMs: number
+): number => {
   let blockCount = blockNumber - currentBlock.number;
   return currentBlock.timestamp + blockCount * blockTimeMs;
 };

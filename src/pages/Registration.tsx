@@ -5,7 +5,7 @@ import { useSubstrate } from '../substrate/SubstrateContext';
 import {
   get32BitSalt,
   getSigningAccount,
-  calcBlockTime,
+  calcBlockTimeMs,
   blockCountToTimespanMs,
   getBlockTimestampMs,
 } from '../substrate/utils';
@@ -51,7 +51,8 @@ const CounterInput = ({ unit, value, step, setValue }: CounterInputProps) => {
 
 export const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
   let { name } = useParams();
-  const { api, nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const { api, nameServiceProvider, connectedAccount, chainInfo }: any =
+    useSubstrate();
   const {
     tierThreeLetters,
     tierFourLetters,
@@ -102,10 +103,10 @@ export const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
 
   const _getLeasePeriodDisplay = (): string => {
     let leasePeriodDisplay = '';
-    if (api) {
+    if (chainInfo) {
       let leaseBlockCount = _getLeasePeriodInBlocks();
-      let blocktimeMs = calcBlockTime(api);
-      let leaseTimespan = blockCountToTimespanMs(blocktimeMs, leaseBlockCount);
+      let { blockTimeMs }: { blockTimeMs: number } = chainInfo;
+      let leaseTimespan = blockCountToTimespanMs(blockTimeMs, leaseBlockCount);
       leasePeriodDisplay = moment.duration(leaseTimespan).humanize();
     }
     return leasePeriodDisplay;

@@ -11,6 +11,18 @@ const parsedQuery = queryString.parse(window.location.search);
 const connectedSocket = parsedQuery.rpc || config.PROVIDER_SOCKET;
 console.log(`Connected socket: ${connectedSocket}`);
 
+const getStoredAccount = () => {
+  try {
+    const account = JSON.parse(localStorage.getItem('connectedAccount'));
+    return account;
+  } catch (err) {
+    console.log(err);
+  }
+};
+const setStoredAccount = (account) => {
+  localStorage.setItem('connectedAccount', JSON.stringify(account));
+};
+
 ///
 // Initial state for `useReducer`
 const INIT_STATE = {
@@ -26,7 +38,7 @@ const INIT_STATE = {
   keyringState: null,
   extensionState: null,
   balances: null,
-  connectedAccount: null,
+  connectedAccount: getStoredAccount() || null,
 };
 
 ///
@@ -69,7 +81,9 @@ const reducer = (state, action) => {
       const { address, balance } = action.payload;
       return { ...state, balances: { ...state?.balances, [address]: balance } };
     case 'CONNECT_ACCOUNT':
-      return { ...state, connectedAccount: action.payload };
+      const connectedAccount = action?.payload;
+      setStoredAccount(connectedAccount);
+      return { ...state, connectedAccount };
     default:
       throw new Error(`Unknown type: ${action.type}`);
   }

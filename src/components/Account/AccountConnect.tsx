@@ -11,7 +11,7 @@ const ConnectButton = () => {
       <div>
         <Row className="flex-column flex-sm-row">
           <Col>
-            <button className="btn btn-primary">Connect</button>
+            <div>Connect</div>
           </Col>
         </Row>
       </div>
@@ -29,12 +29,14 @@ const AccountConnect = () => {
   };
   return (
     <>
-      <div onClick={() => clickHandler()}>
-        {account ? (
-          <AccountItem accountAddress={account?.address} shortMode={true} />
-        ) : (
-          <ConnectButton />
-        )}
+      <div className="d-flex flex-row ">
+        <div onClick={() => clickHandler()}>
+          {account ? (
+            <AccountItem accountAddress={account?.address} shortMode={true} />
+          ) : (
+            <ConnectButton />
+          )}
+        </div>
       </div>
       <AccountSelectModal
         show={showModal}

@@ -208,9 +208,13 @@ const RegistrationForm = () => {
   let [currentStepProgress, setCurrentStepProgress] = useState(0);
   let currentStepProgressRef = useRef(currentStepProgress);
   let [salt, setSalt] = useState(null);
+  const [error, setError] = useState(null);
 
-  const loadRegistrationState = async () => {
-    const nameSalt = localStorage.getItem(name);
+  // load the stored salt
+  const storedSalt = localStorage.getItem(name);
+  const nameSalt = isNaN(Number(storedSalt)) ? null : Number(storedSalt);
+  console.log(nameSalt);
+  const loadRegistrationState = async (nameSalt) => {
     if (nameSalt) {
       nameSalt && setSalt(nameSalt);
       let commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
@@ -230,8 +234,8 @@ const RegistrationForm = () => {
   };
 
   useEffect(() => {
-    loadRegistrationState();
-  }, []);
+    loadRegistrationState(nameSalt);
+  }, [nameSalt]);
 
   const getRegistrationButtonState = (step) => {
     let state = {
@@ -269,18 +273,28 @@ const RegistrationForm = () => {
   } = getRegistrationButtonState(currentStep);
 
   const handleRegistrationReveal = async () => {
+    // reset any error from previous runs
+    setError(null);
+
     let connectedSigningAccount = await getSigningAccount(connectedAccount);
     nameServiceProvider
       .reveal(connectedSigningAccount, name, salt, leasePeriod)
       .then(() => {
         setCurrentStep(3);
         setCurrentStepProgress(100);
+      })
+      .catch((err: Error) => {
+        setCurrentStepProgress(0);
+        setError(err?.message);
       });
     setCurrentStep(3);
     setCurrentStepProgress(50);
   };
 
   const handleRegistrationCommit = async () => {
+    // reset any error from previous runs
+    setError(null);
+
     let connectedSigningAccount = await await getSigningAccount(
       connectedAccount
     );
@@ -290,22 +304,32 @@ const RegistrationForm = () => {
       name,
       salt
     );
-    nameServiceProvider.commit(connectedSigningAccount, commitHash).then(() => {
-      setCurrentStep(2);
-      setCurrentStepProgress(0);
-      let timer = setInterval(() => {
-        let newProgress = currentStepProgressRef.current + 10;
-        console.log(newProgress);
-        if (newProgress < 100) {
-          setCurrentStepProgress(newProgress);
-          currentStepProgressRef.current = newProgress;
-        } else {
-          setCurrentStep(3);
-          setCurrentStepProgress(0);
-          clearInterval(timer);
-        }
-      }, 60);
-    });
+    nameServiceProvider
+      .commit(connectedSigningAccount, commitHash)
+      .then(() => {
+        setCurrentStep(2);
+        setCurrentStepProgress(0);
+
+        // store salt in local storage to keep the current commitment state
+        localStorage.setItem(name, salt.toString());
+
+        let timer = setInterval(() => {
+          let newProgress = currentStepProgressRef.current + 10;
+          console.log(newProgress);
+          if (newProgress < 100) {
+            setCurrentStepProgress(newProgress);
+            currentStepProgressRef.current = newProgress;
+          } else {
+            setCurrentStep(3);
+            setCurrentStepProgress(0);
+            clearInterval(timer);
+          }
+        }, 60);
+      })
+      .catch((err: Error) => {
+        setCurrentStepProgress(0);
+        setError(err?.message);
+      });
 
     setCurrentStep(1);
     setCurrentStepProgress(50);
@@ -332,6 +356,10 @@ const RegistrationForm = () => {
             >
               {btnTitle}
             </button>
+          </div>
+          <div className="w-100 m-2" />
+          <div className="col d-flex justify-content-end pe-3">
+            <div className="text-danger">{error || ''}</div>
           </div>
         </div>
       </form>

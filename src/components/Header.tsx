@@ -3,11 +3,12 @@ import AccountItem from '../components/Account/AccountItem';
 import PolkadotCircle from '../images/polkadot-circle.svg';
 import styled from 'styled-components';
 import AccountConnect from './Account/AccountConnect';
+import { Link } from 'react-router-dom';
+
 const Logo = styled.img`
   width: 2.5rem;
   height: 2.5rem;
 `;
-
 const RoundedAccountItem = styled(AccountItem)``;
 
 const Header = () => {
@@ -15,17 +16,15 @@ const Header = () => {
     <>
       <Navbar className="px-4 py-3" variant="dark">
         <Navbar.Brand>
-          <a
-            href="https://polkadot.network"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          {/* <a href="/" target="_blank" rel="noopener noreferrer">*/}
+          <Link to="/">
             <Logo
               className="shadow-sm rounded-circle p-1"
               src={PolkadotCircle}
               alt={'Polkadot'}
             />
-          </a>
+          </Link>
+          {/* </a>*/}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse

@@ -275,66 +275,74 @@ const RegistrationForm = () => {
   } = getRegistrationButtonState(currentStep);
 
   const handleRegistrationReveal = async () => {
-    // reset any error from previous runs
     setError(null);
-
-    let connectedSigningAccount = await getSigningAccount(connectedAccount);
-    nameServiceProvider
-      .reveal(connectedSigningAccount, name, salt, leasePeriod)
-      .then(() => {
-        setCurrentStep(3);
-        setCurrentStepProgress(100);
-      })
-      .catch((err: Error) => {
-        setCurrentStepProgress(0);
-        setError(err?.message);
-      });
-    setCurrentStep(3);
-    setCurrentStepProgress(50);
+    try {
+      if (!connectedAccount) {
+        throw new Error(
+          'No account is connected. Please connect an account be able to sign the request.'
+        );
+      }
+      // reset any error from previous runs
+      let connectedSigningAccount = await getSigningAccount(connectedAccount);
+      nameServiceProvider
+        .reveal(connectedSigningAccount, name, salt, leasePeriod)
+        .then(() => {
+          setCurrentStep(3);
+          setCurrentStepProgress(100);
+        });
+      setCurrentStep(3);
+      setCurrentStepProgress(50);
+    } catch (err) {
+      setCurrentStepProgress(0);
+      setError(err?.message);
+    }
   };
 
   const handleRegistrationCommit = async () => {
     // reset any error from previous runs
     setError(null);
+    try {
+      if (!connectedAccount) {
+        throw new Error(
+          'No account is connected. Please connect an account to be able to sign the request.'
+        );
+      }
+      let connectedSigningAccount = await getSigningAccount(connectedAccount);
+      const salt = get32BitSalt();
+      setSalt(salt);
+      const commitHash = nameServiceProvider.generateCommitmentHashCodec(
+        name,
+        salt
+      );
+      nameServiceProvider
+        .commit(connectedSigningAccount, commitHash)
+        .then(() => {
+          setCurrentStep(2);
+          setCurrentStepProgress(0);
 
-    let connectedSigningAccount = await await getSigningAccount(
-      connectedAccount
-    );
-    const salt = get32BitSalt();
-    setSalt(salt);
-    const commitHash = nameServiceProvider.generateCommitmentHashCodec(
-      name,
-      salt
-    );
-    nameServiceProvider
-      .commit(connectedSigningAccount, commitHash)
-      .then(() => {
-        setCurrentStep(2);
-        setCurrentStepProgress(0);
+          // store salt in local storage to keep the current commitment state
+          localStorage.setItem(name, salt.toString());
 
-        // store salt in local storage to keep the current commitment state
-        localStorage.setItem(name, salt.toString());
+          let timer = setInterval(() => {
+            let newProgress = currentStepProgressRef.current + 10;
+            console.log(newProgress);
+            if (newProgress < 100) {
+              setCurrentStepProgress(newProgress);
+              currentStepProgressRef.current = newProgress;
+            } else {
+              setCurrentStep(3);
+              setCurrentStepProgress(0);
+              clearInterval(timer);
+            }
+          }, 60);
+        });
 
-        let timer = setInterval(() => {
-          let newProgress = currentStepProgressRef.current + 10;
-          console.log(newProgress);
-          if (newProgress < 100) {
-            setCurrentStepProgress(newProgress);
-            currentStepProgressRef.current = newProgress;
-          } else {
-            setCurrentStep(3);
-            setCurrentStepProgress(0);
-            clearInterval(timer);
-          }
-        }, 60);
-      })
-      .catch((err: Error) => {
-        setCurrentStepProgress(0);
-        setError(err?.message);
-      });
-
-    setCurrentStep(1);
-    setCurrentStepProgress(50);
+      setCurrentStep(1);
+      setCurrentStepProgress(50);
+    } catch (err) {
+      setCurrentStepProgress(0);
+      setError(err?.message);
+    }
   };
 
   return (

@@ -38,7 +38,7 @@ const INIT_STATE = {
   keyringState: null,
   extensionState: null,
   balances: null,
-  connectedAccount: getStoredAccount() || null,
+  connectedAccount: null,
 };
 
 ///
@@ -63,10 +63,8 @@ const reducer = (state, action) => {
       return { ...state, nameServiceProvider: action.payload };
     case 'LOAD_KEYRING':
       return { ...state, keyringState: 'LOADING' };
-
     case 'SET_KEYRING':
       return { ...state, keyring: action.payload, keyringState: 'READY' };
-
     case 'KEYRING_ERROR':
       return { ...state, keyring: null, keyringState: 'ERROR' };
     case 'LOAD_EXTENSION':
@@ -82,7 +80,6 @@ const reducer = (state, action) => {
       return { ...state, balances: { ...state?.balances, [address]: balance } };
     case 'CONNECT_ACCOUNT':
       const connectedAccount = action?.payload;
-      setStoredAccount(connectedAccount);
       return { ...state, connectedAccount };
     default:
       throw new Error(`Unknown type: ${action.type}`);

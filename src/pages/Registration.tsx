@@ -234,8 +234,10 @@ const RegistrationForm = () => {
   };
 
   useEffect(() => {
-    loadRegistrationState(nameSalt);
-  }, [nameSalt]);
+    if (nameServiceProvider) {
+      loadRegistrationState(nameSalt);
+    }
+  }, [nameSalt, nameServiceProvider]);
 
   const getRegistrationButtonState = (step) => {
     let state = {

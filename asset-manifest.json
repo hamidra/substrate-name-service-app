@@ -1,17 +1,19 @@
 {
   "files": {
-    "main.css": "/substrate-name-service-app/static/css/main.2e365bb1.css",
-    "main.js": "/substrate-name-service-app/static/js/main.94e8cb91.js",
+    "main.css": "/substrate-name-service-app/static/css/main.816d709e.css",
+    "main.js": "/substrate-name-service-app/static/js/main.4feccaaf.js",
     "static/js/787.c21a0150.chunk.js": "/substrate-name-service-app/static/js/787.c21a0150.chunk.js",
+    "static/media/bootstrap-icons.woff?": "/substrate-name-service-app/static/media/bootstrap-icons.c1d7432ee75fa194e499.woff",
+    "static/media/bootstrap-icons.woff2?": "/substrate-name-service-app/static/media/bootstrap-icons.a13b815539b49de48d23.woff2",
     "static/media/polkadot-circle.svg": "/substrate-name-service-app/static/media/polkadot-circle.4345f3e48698d0e1e9362232d5a0e99f.svg",
     "index.html": "/substrate-name-service-app/index.html",
     "static/media/index.cjs": "/substrate-name-service-app/static/media/index.f2b6f7ffc9a430272d20.cjs",
-    "main.2e365bb1.css.map": "/substrate-name-service-app/static/css/main.2e365bb1.css.map",
-    "main.94e8cb91.js.map": "/substrate-name-service-app/static/js/main.94e8cb91.js.map",
+    "main.816d709e.css.map": "/substrate-name-service-app/static/css/main.816d709e.css.map",
+    "main.4feccaaf.js.map": "/substrate-name-service-app/static/js/main.4feccaaf.js.map",
     "787.c21a0150.chunk.js.map": "/substrate-name-service-app/static/js/787.c21a0150.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.2e365bb1.css",
-    "static/js/main.94e8cb91.js"
+    "static/css/main.816d709e.css",
+    "static/js/main.4feccaaf.js"
   ]
 }

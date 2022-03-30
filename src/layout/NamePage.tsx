@@ -61,7 +61,12 @@ const NamePage = ({ className }: NamePageProps) => {
           </div>
         </Card.Header>
         <Card.Body>
-          <Outlet context={{ nameRegistration }} />
+          <Outlet
+            context={{
+              nameRegistration: nameRegistration,
+              setNameRegistration,
+            }}
+          />
         </Card.Body>
       </Card>
     </div>
@@ -73,7 +78,10 @@ const styledNamePage = styled(NamePage)`
 `;
 export default styledNamePage;
 
-type NameRegistrationContextType = { nameRegistration: any | null };
+type NameRegistrationContextType = {
+  nameRegistration: any;
+  setNameRegistration: (nameRegistration: any) => void;
+};
 export function useNameRegistration() {
   return useOutletContext<NameRegistrationContextType>();
 }

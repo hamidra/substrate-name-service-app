@@ -48,16 +48,13 @@ class NameServiceProvider {
 
     saltedNameU8a.set(nameU8a);
     saltedNameU8a.set(secretU8a, nameU8a.length);
-    console.log(saltedNameU8a);
     const hash = blake2AsHex(saltedNameU8a);
-    console.log(name, secret, hash);
     return hash;
   };
 
   generateCommitmentHashCodec = (name: string, secret: number) => {
     const preimage = this.apiClient.createType('CommitmentRaw', [name, secret]);
     const hash = blake2AsHex(preimage.toU8a());
-    console.log(name, secret, hash);
     return hash;
   };
 

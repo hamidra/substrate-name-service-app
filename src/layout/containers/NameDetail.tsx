@@ -32,10 +32,7 @@ const NameDetail = () => {
             </div>
           </div>
         </div>
-        <ExpirationTimeWithExtend
-          name={name}
-          nameRegistration={nameRegistration}
-        />
+        <ExpirationTimeWithExtend name={name} />
       </form>
     </>
   );

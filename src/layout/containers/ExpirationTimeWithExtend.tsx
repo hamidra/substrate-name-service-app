@@ -4,10 +4,12 @@ import { useSubstrate } from 'layout/hooks';
 import { getSigningAccount, getBlockTimestampMs } from 'substrate/utils';
 import BN from 'bn.js';
 import moment from 'moment';
+import { useNameRegistration } from 'layout/hooks';
 
-const ExpirationTimeWithExtend = ({ name, nameRegistration }) => {
+const ExpirationTimeWithExtend = ({ name }) => {
   let [leasePeriod, setLeasePeriod] = useState(new BN(1));
   let [editMode, setEditMode] = useState(false);
+  let { nameRegistration, setNameRegistration } = useNameRegistration();
   let expirationBlockNumber = nameRegistration?.expiry;
   let [expirationTimeDisplay, setExpirationTimeDisplay] = useState('');
   let { api, apiState, nameServiceProvider, connectedAccount, chainInfo }: any =
@@ -55,14 +57,19 @@ const ExpirationTimeWithExtend = ({ name, nameRegistration }) => {
   let cancelClickHandler = () => {
     setEditMode(false);
   };
+
   let extendClickHandler = async () => {
-    if (!editMode) {
-      setEditMode(true);
-    } else {
-      nameExtensionHandler().then(() => {
+    try {
+      if (!editMode) {
+        setEditMode(true);
+      } else {
+        await nameExtensionHandler();
         setEditMode(false);
-      });
-    }
+        // update the name registration
+        let registration = await nameServiceProvider?.getRegistration(name);
+        setNameRegistration(registration?.unwrapOr(null)?.toJSON());
+      }
+    } catch (err) {}
   };
 
   let nameExtensionHandler = async () => {
@@ -73,6 +80,7 @@ const ExpirationTimeWithExtend = ({ name, nameRegistration }) => {
       leasePeriod
     );
   };
+
   return (
     <>
       <div className="mb-3 row">

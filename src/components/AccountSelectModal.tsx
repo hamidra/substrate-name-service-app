@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import { useSubstrate } from '../../substrate/SubstrateContext';
-import { loadExtension } from '../../substrate/extension';
-import AccountItem from './AccountItem';
+import { useSubstrate } from 'substrate/SubstrateContext';
+import AccountItem from 'components/AccountItem';
+
 const AccountSelectModal = ({ show, handleHide }) => {
   const { keyring, balances, connectedAccount, dispatch }: any = useSubstrate();
   const accounts = keyring?.getPairs();

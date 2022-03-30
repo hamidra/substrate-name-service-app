@@ -1,8 +1,8 @@
-import { Nav, Navbar, Button } from 'react-bootstrap';
-import AccountItem from '../components/Account/AccountItem';
-import PolkadotCircle from '../images/polkadot-circle.svg';
+import { Nav, Navbar } from 'react-bootstrap';
+import AccountItem from 'components/AccountItem';
+import PolkadotCircle from 'images/polkadot-circle.svg';
 import styled from 'styled-components';
-import AccountConnect from './Account/AccountConnect';
+import AccountConnect from 'components/AccountConnect';
 import { Link } from 'react-router-dom';
 
 const Logo = styled.img`

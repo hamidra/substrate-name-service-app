@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import './App.css';
+import 'App.css';
 import { Container } from 'react-bootstrap';
-import Header from './components/Header';
+import Header from 'components/Header';
 import { HashRouter } from 'react-router-dom';
-import { SubstrateContextProvider } from './substrate/SubstrateContext';
-import NameServiceRoutes from './pages/Routes';
-import { useSubstrate } from './substrate';
-import DeveloperConsole from './substrate/DeveloperConsole';
-import Processing from './components/Processing';
-import Error from './components/Error';
+import { SubstrateContextProvider } from 'substrate/SubstrateContext';
+import NameServiceRoutes from 'layout/routes/NameServiceRoutes';
+import { useSubstrate } from 'substrate/SubstrateContext';
+import DeveloperConsole from 'substrate/DeveloperConsole';
+import Processing from 'components/Processing';
+import Error from 'components/Error';
 
 function ConnectionInProgress() {
   const { apiState, apiError }: any = useSubstrate();

@@ -1,5 +1,5 @@
-import { signAndSendTx } from './txHandler';
-import { getAccountAddress } from './utils';
+import { signAndSendTx } from 'substrate/txHandler';
+import { getAccountAddress } from 'substrate/utils';
 import { blake2AsHex } from '@polkadot/util-crypto';
 import { numberToU8a, stringToU8a, hexToU8a } from '@polkadot/util';
 

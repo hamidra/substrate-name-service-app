@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { useSubstrate } from '../../substrate/SubstrateContext';
-import { loadExtension } from '../../substrate/extension';
-import AccountItem from './AccountItem';
-import AccountSelectModal from './AccountSelectModal';
+import { useSubstrate } from 'substrate/SubstrateContext';
+import { loadExtension } from 'substrate/extension';
+import AccountItem from 'components/AccountItem';
+import AccountSelectModal from 'components/AccountSelectModal';
 
 const ConnectButton = () => {
   return (

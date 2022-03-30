@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import SearchBox from '../components/SearchBox';
+import SearchBox from 'components/SearchBox';
 import { useNavigate } from 'react-router-dom';
 
 interface PageProps {
@@ -13,7 +13,7 @@ const MainPage = ({ className }: PageProps) => {
       <div className="row justify-content-center">
         <div className="col-8">
           <SearchBox
-            placeholder="Find your perfect Kusama account name"
+            placeholder="Find your perfect Dot name for your account"
             handleSearch={(phrase) => {
               // validate phrase
               navigate(`name/${phrase}`);

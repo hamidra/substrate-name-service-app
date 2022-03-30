@@ -1,11 +1,11 @@
 import React, { useReducer, useContext, useMemo, useEffect } from 'react';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import queryString from 'query-string';
-import config from '../config';
+import config from 'config';
 import BN from 'bn.js';
-import NameServiceProvider from './nsPalletProvider';
+import NameServiceProvider from 'substrate/nsPalletProvider';
 import keyring from '@polkadot/ui-keyring';
-import { calcBlockTimeMs } from './utils';
+import { calcBlockTimeMs } from 'substrate/utils';
 
 const parsedQuery = queryString.parse(window.location.search);
 const connectedSocket = parsedQuery.rpc || config.PROVIDER_SOCKET;

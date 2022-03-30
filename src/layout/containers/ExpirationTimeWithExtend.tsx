@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
-import { useNameRegistration } from './NamePage';
-import { RegistrationLeasePeriod } from './Registration';
-import { useSubstrate } from '../substrate/SubstrateContext';
-import { getSigningAccount, getBlockTimestampMs } from '../substrate/utils';
+import RegistrationLeasePeriod from 'layout/containers/RegistrationLeasePeriod';
+import { useSubstrate } from 'substrate/SubstrateContext';
+import { getSigningAccount, getBlockTimestampMs } from 'substrate/utils';
 import BN from 'bn.js';
 import moment from 'moment';
+
 const ExpirationTimeWithExtend = ({ name, nameRegistration }) => {
   let [leasePeriod, setLeasePeriod] = useState(new BN(1));
   let [editMode, setEditMode] = useState(false);
@@ -131,43 +130,4 @@ const ExpirationTimeWithExtend = ({ name, nameRegistration }) => {
   );
 };
 
-const NameDetailsCard = () => {
-  const { name } = useParams();
-  const { nameRegistration } = useNameRegistration();
-  return (
-    <>
-      <form className="p-3">
-        <div className="mb-3 row">
-          <label className="col-md-3 col-form-label">Parent</label>
-          <div className="col-md-9">
-            <div>.dot</div>
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label className="col-md-3 col-form-label">REGISTRANT</label>
-          <div className="col-md-9 col-form-label">
-            <div>
-              {nameRegistration
-                ? nameRegistration.registrant
-                : `Not registered`}
-            </div>
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label className="col-md-3 col-form-label">CONTROLLER</label>
-          <div className="col-md-9 col-form-label">
-            <div>
-              {nameRegistration ? nameRegistration.owner : `Not registered`}
-            </div>
-          </div>
-        </div>
-        <ExpirationTimeWithExtend
-          name={name}
-          nameRegistration={nameRegistration}
-        />
-      </form>
-    </>
-  );
-};
-
-export default NameDetailsCard;
+export default ExpirationTimeWithExtend;

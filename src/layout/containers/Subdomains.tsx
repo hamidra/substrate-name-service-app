@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
-import { useNameRegistration } from './NamePage';
-const SubdomainsCard = () => {
+import { useNameRegistration } from 'layout/NamePage';
+const Subdomains = () => {
   let { name } = useParams();
   const { nameRegistration } = useNameRegistration();
   return (
@@ -21,4 +21,4 @@ const SubdomainsCard = () => {
   );
 };
 
-export default SubdomainsCard;
+export default Subdomains;

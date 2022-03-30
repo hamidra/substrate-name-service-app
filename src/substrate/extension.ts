@@ -1,4 +1,4 @@
-import config from '../config';
+import config from 'config';
 import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
 
 const loadBalance = (state, dispatch, { address }) => {

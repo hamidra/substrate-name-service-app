@@ -1,8 +1,8 @@
-import MainPage from './Main';
-import RegistrationCard from './Registration';
-import SubdomainsCard from './Subdomains';
-import NamePage from './NamePage';
-import NameDetailsCard from './NameDetail';
+import MainPage from 'layout/MainPage';
+import RegistrationCard from 'layout/containers/Registration';
+import SubdomainsCard from 'layout/containers/Subdomains';
+import NamePage from 'layout/NamePage';
+import NameDetailsCard from 'layout/containers/NameDetail';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 const NameServiceRoutes = () => {

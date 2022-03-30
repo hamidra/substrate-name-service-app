@@ -6,10 +6,10 @@ import {
   useLocation,
   useOutletContext,
 } from 'react-router-dom';
-import NameButtonNavbar from '../components/ButtonNavbar';
+import NameButtonNavbar from 'components/ButtonNavbar';
 import styled from 'styled-components';
-import { useSubstrate } from '../substrate/SubstrateContext';
-import { calcBlockTimeMs } from '../substrate/utils';
+import { useSubstrate } from 'substrate/SubstrateContext';
+import { calcBlockTimeMs } from 'substrate/utils';
 
 type ContextType = { nameRegistration: any | null };
 

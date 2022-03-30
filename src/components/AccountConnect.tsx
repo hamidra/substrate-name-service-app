@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { useSubstrate } from 'substrate/SubstrateContext';
+import { useSubstrate } from 'layout/hooks';
 import { loadExtension } from 'substrate/extension';
 import AccountItem from 'components/AccountItem';
 import AccountSelectModal from 'components/AccountSelectModal';

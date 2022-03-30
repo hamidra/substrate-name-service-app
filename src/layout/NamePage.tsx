@@ -8,10 +8,8 @@ import {
 } from 'react-router-dom';
 import NameButtonNavbar from 'components/ButtonNavbar';
 import styled from 'styled-components';
-import { useSubstrate } from 'substrate/SubstrateContext';
+import { useSubstrate } from 'layout/hooks';
 import { calcBlockTimeMs } from 'substrate/utils';
-
-type ContextType = { nameRegistration: any | null };
 
 const getTabBasePath = (currentPath) => {
   let currentParts = currentPath.split('/');
@@ -75,6 +73,7 @@ const styledNamePage = styled(NamePage)`
 `;
 export default styledNamePage;
 
+type NameRegistrationContextType = { nameRegistration: any | null };
 export function useNameRegistration() {
-  return useOutletContext<ContextType>();
+  return useOutletContext<NameRegistrationContextType>();
 }

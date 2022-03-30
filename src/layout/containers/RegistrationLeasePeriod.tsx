@@ -2,7 +2,7 @@ import moment from 'moment';
 import CounterInput from 'components/CounterInput';
 import { blockCountToTimespanMs, fromChainUnit } from 'substrate/utils';
 import { useParams } from 'react-router-dom';
-import { useSubstrate } from 'substrate/SubstrateContext';
+import { useSubstrate } from 'layout/hooks';
 import BN from 'bn.js';
 
 const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {

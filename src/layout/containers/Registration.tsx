@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react';
 import RegistrationLeasePeriod from 'layout/containers/RegistrationLeasePeriod';
 import { useParams } from 'react-router-dom';
-import { useSubstrate } from 'substrate/SubstrateContext';
+import { useSubstrate } from 'layout/hooks';
 import { get32BitSalt, getSigningAccount } from 'substrate/utils';
 import { useEffect } from 'react';
 import BN from 'bn.js';
-import { useNameRegistration } from 'layout/NamePage';
+import { useNameRegistration } from 'layout/hooks';
 import RegistrationSteps from 'layout/containers/RegistrationSteps';
 
 const RegistrationForm = () => {

@@ -5,7 +5,7 @@ import Header from 'components/Header';
 import { HashRouter } from 'react-router-dom';
 import { SubstrateContextProvider } from 'substrate/SubstrateContext';
 import NameServiceRoutes from 'layout/routes/NameServiceRoutes';
-import { useSubstrate } from 'substrate/SubstrateContext';
+import { useSubstrate } from 'layout/hooks';
 import DeveloperConsole from 'substrate/DeveloperConsole';
 import Processing from 'components/Processing';
 import Error from 'components/Error';

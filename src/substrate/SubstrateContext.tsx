@@ -1,4 +1,4 @@
-import React, { useReducer, useContext, useMemo, useEffect } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import queryString from 'query-string';
 import config from 'config';
@@ -223,6 +223,4 @@ const SubstrateContextProvider = (props) => {
   );
 };
 
-const useSubstrate = () => ({ ...useContext(SubstrateContext) });
-
-export { SubstrateContextProvider, useSubstrate };
+export { SubstrateContextProvider, SubstrateContext };

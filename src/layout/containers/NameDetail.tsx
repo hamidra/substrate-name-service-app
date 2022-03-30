@@ -1,5 +1,5 @@
 import { useParams } from 'react-router';
-import { useNameRegistration } from 'layout/NamePage';
+import { useNameRegistration } from 'layout/hooks';
 import ExpirationTimeWithExtend from 'layout/containers/ExpirationTimeWithExtend';
 
 const NameDetail = () => {

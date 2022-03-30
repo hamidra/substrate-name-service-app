@@ -1,9 +1,9 @@
 import { Modal } from 'react-bootstrap';
-import { useSubstrate } from 'substrate/SubstrateContext';
+import { useSubstrate } from 'layout/hooks';
 import AccountItem from 'components/AccountItem';
 
 const AccountSelectModal = ({ show, handleHide }) => {
-  const { keyring, balances, connectedAccount, dispatch }: any = useSubstrate();
+  const { keyring, connectedAccount, dispatch }: any = useSubstrate();
   const accounts = keyring?.getPairs();
   const logout = () => {
     dispatch({ type: 'CONNECT_ACCOUNT', payload: null });

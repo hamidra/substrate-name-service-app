@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import RegistrationLeasePeriod from 'layout/containers/RegistrationLeasePeriod';
-import { useSubstrate } from 'substrate/SubstrateContext';
+import { useSubstrate } from 'layout/hooks';
 import { getSigningAccount, getBlockTimestampMs } from 'substrate/utils';
 import BN from 'bn.js';
 import moment from 'moment';

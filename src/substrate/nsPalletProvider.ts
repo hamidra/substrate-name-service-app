@@ -36,7 +36,6 @@ class NameServiceProvider {
       this.apiClient.consts.nameService?.notificationPeriod;
     this.constants.feePerRegistrationPeriod =
       this.apiClient.consts.nameService?.feePerRegistrationPeriod;
-    console.log(this.constants);
   }
 
   generateCommitHashBytes = (name: string, secret: number) => {
@@ -83,8 +82,6 @@ class NameServiceProvider {
       address,
       commitmentHash
     );
-    console.log('tx');
-    console.log(address);
     return signAndSendTx(this.apiClient, commitTx, account, true);
   }
 

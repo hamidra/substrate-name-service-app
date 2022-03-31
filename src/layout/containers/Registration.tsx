@@ -14,38 +14,54 @@ const RegistrationForm = () => {
   let [leasePeriod, setLeasePeriod] = useState(new BN(1));
   let [currentStep, setCurrentStep] = useState(1);
   let [currentStepProgress, setCurrentStepProgress] = useState(0);
+  let [progressTimer, setProgressTimer] = useState(null);
   let currentStepProgressRef = useRef(currentStepProgress);
   let [salt, setSalt] = useState(null);
   const [error, setError] = useState(null);
 
   // load the stored salt
   const storedSalt = localStorage.getItem(name);
-  const nameSalt = isNaN(Number(storedSalt)) ? null : Number(storedSalt);
-  console.log(nameSalt);
-  const loadRegistrationState = async (nameSalt) => {
-    if (nameSalt) {
+  const nameSalt =
+    !storedSalt || isNaN(Number(storedSalt)) ? null : Number(storedSalt);
+
+  // check any available commitments for the (name, nameSalt) to fins the current registration state
+  const loadRegistrationState = async (name, nameSalt) => {
+    let commitment;
+    if (name && nameSalt) {
       nameSalt && setSalt(nameSalt);
       let commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
         name,
         nameSalt
       );
-      let commitment = await nameServiceProvider.getCommitment(commitmentHash);
-      // ToDo: match the connected account address with the commentment.who address
+      commitment = await nameServiceProvider.getCommitment(commitmentHash);
+    }
+    // ToDo: match the connected account address with the commentment.who address
 
-      // ToDo: check if commitment is mature if commiment is mature (the wait time is over)
-
-      if (commitment) {
+    // ToDo: check if commitment is mature if commiment is mature (the wait time is over)
+    if (commitment) {
+      if (currentStep !== 2) {
         setCurrentStep(3);
         setCurrentStepProgress(0);
       }
+    } else {
+      setCurrentStep(1);
+      setCurrentStepProgress(0);
     }
   };
 
   useEffect(() => {
     if (nameServiceProvider) {
-      loadRegistrationState(nameSalt);
+      loadRegistrationState(name, nameSalt);
     }
-  }, [nameSalt, nameServiceProvider]);
+  }, [nameSalt, nameServiceProvider, name]);
+
+  // clearInterval if there is any progress timer running
+  useEffect(() => {
+    return () => {
+      console.log('timer canceled', progressTimer);
+      progressTimer && clearInterval(progressTimer);
+    };
+  }, [progressTimer]);
 
   const getRegistrationButtonProps = (step) => {
     let btnProps = {
@@ -133,7 +149,6 @@ const RegistrationForm = () => {
 
           let timer = setInterval(() => {
             let newProgress = currentStepProgressRef.current + 10;
-            console.log(newProgress);
             if (newProgress < 100) {
               setCurrentStepProgress(newProgress);
               currentStepProgressRef.current = newProgress;
@@ -141,8 +156,10 @@ const RegistrationForm = () => {
               setCurrentStep(3);
               setCurrentStepProgress(0);
               clearInterval(timer);
+              setProgressTimer(null);
             }
-          }, 60);
+          }, 6000);
+          setProgressTimer(timer);
         });
 
       setCurrentStep(1);
@@ -152,7 +169,6 @@ const RegistrationForm = () => {
       setError(err?.message);
     }
   };
-
   return (
     <>
       <form className="px-2">

@@ -14,7 +14,6 @@ function ConnectionInProgress() {
   const { apiState, apiError }: any = useSubstrate();
   const error = apiState === 'ERROR';
   const [showError, setShowError] = useState(true);
-  console.log(error, showError);
   return (
     <>
       <Error

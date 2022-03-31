@@ -20,7 +20,6 @@ const SearchBox = ({
   const [searchValue, setSearchValue] = useState<string>('');
   const handleKeypress = (e) => {
     //it triggers by pressing the enter key
-    console.log(e);
     if (e.key === 'Enter') {
       handleSearch(searchValue);
     }

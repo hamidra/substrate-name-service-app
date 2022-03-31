@@ -41,7 +41,6 @@ const AccountConnect = () => {
       <AccountSelectModal
         show={showModal}
         handleHide={() => {
-          console.log('hide');
           setShowModal(false);
         }}
       />

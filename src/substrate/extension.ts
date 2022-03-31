@@ -72,7 +72,6 @@ export const loadExtension = async (state, dispatch) => {
       }
       dispatch({ type: 'SET_EXTENSION' });
     } catch (e) {
-      console.log(e);
       dispatch({ type: 'EXTENSION_ERROR' });
     }
   }

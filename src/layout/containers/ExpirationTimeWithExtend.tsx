@@ -32,13 +32,11 @@ const ExpirationTimeWithExtend = ({ name }) => {
       number: currentHeader?.toJSON()?.number,
       timestamp: currentTimestamp?.toJSON(),
     };
-    console.log(currentBlock);
     let expirationTimestamp = getBlockTimestampMs(
       currentBlock,
       expirationBlockNumber,
       blockTimeMs
     );
-    console.log('timestamp', expirationTimestamp);
     expirationTimeDisplay = moment(expirationTimestamp).format(
       'dddd, MMMM Do YYYY, h:mm a'
     );

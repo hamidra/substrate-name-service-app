@@ -21,10 +21,10 @@ const ConnectButton = () => {
 
 const AccountConnect = () => {
   let [showModal, setShowModal] = useState(false);
-  let { dispatch, ...state }: any = useSubstrate();
+  let { substrateDispatch, ...state }: any = useSubstrate();
   let account = state?.connectedAccount;
   const clickHandler = async () => {
-    loadExtension(state, dispatch);
+    //loadExtension(state, substrateDispatch);
     setShowModal(true);
   };
   return (

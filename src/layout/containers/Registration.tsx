@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import RegistrationLeasePeriod from 'layout/containers/RegistrationLeasePeriod';
 import { useParams } from 'react-router-dom';
-import { useSubstrate } from 'layout/hooks';
+import { useSubstrate, useKeyring } from 'layout/hooks';
 import { get32BitSalt, getSigningAccount } from 'substrate/utils';
 import { useEffect } from 'react';
 import BN from 'bn.js';
@@ -9,7 +9,8 @@ import { useNameRegistration } from 'layout/hooks';
 import RegistrationSteps from 'layout/containers/RegistrationSteps';
 
 const RegistrationForm = () => {
-  const { nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const { nameServiceProvider }: any = useSubstrate();
+  const { connectedAccount }: any = useKeyring();
   let { name } = useParams();
   let [leasePeriod, setLeasePeriod] = useState(new BN(1));
   let [currentStep, setCurrentStep] = useState(1);
@@ -202,7 +203,6 @@ const RegistrationForm = () => {
 };
 
 const Registration = () => {
-  const { nameServiceProvider, connectedAccount }: any = useSubstrate();
   const { name } = useParams();
   const { nameRegistration } = useNameRegistration();
 

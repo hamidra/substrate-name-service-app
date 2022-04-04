@@ -34,7 +34,7 @@ const NamePage = ({ className }: NamePageProps) => {
   let tabBasePath = getTabBasePath(location.pathname);
   let tabTitles = ['Register', 'Details', 'Subdomains'];
   let tabs = getTabs(tabTitles, tabBasePath);
-  const { api, nameServiceProvider, connectedAccount }: any = useSubstrate();
+  const { api, nameServiceProvider }: any = useSubstrate();
   const [nameRegistration, setNameRegistration] = useState();
   useEffect(() => {
     if (name) {

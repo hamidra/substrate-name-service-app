@@ -28,7 +28,10 @@ const AccountSelectModal = ({ show, handleHide }) => {
           <div
             className={`p-2 border ${getAccountBorder(account)}`}
             onClick={() => {
-              keyringDispatch({ type: 'CONNECT_ACCOUNT', payload: account });
+              keyringDispatch({
+                type: 'CONNECT_ACCOUNT',
+                payload: account?.address,
+              });
               handleHide();
             }}
           >

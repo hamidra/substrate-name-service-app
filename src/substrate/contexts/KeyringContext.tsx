@@ -1,9 +1,10 @@
 import { balances } from '@polkadot/types/interfaces/definitions';
+import { connect } from 'http2';
 import React, { useContext, useReducer, useEffect } from 'react';
 import { useSubstrate } from 'substrate/contexts/SubstrateContext';
 import { getTestPairs, loadBalances, loadAccounts } from 'substrate/extension';
 
-const getStoredAccount = () => {
+const getStoredAccountAddr = () => {
   try {
     const account = JSON.parse(localStorage.getItem('connectedAccount'));
     return account;
@@ -11,7 +12,7 @@ const getStoredAccount = () => {
     console.log(err);
   }
 };
-const setStoredAccount = (account) => {
+const setStoredAccountAddr = (account) => {
   localStorage.setItem('connectedAccount', JSON.stringify(account));
 };
 
@@ -21,7 +22,7 @@ const INIT_STATE = {
   extensionState: null,
   accounts: {},
   balances: {},
-  connectedAccount: null,
+  connectedAddress: getStoredAccountAddr(),
 };
 
 ///
@@ -43,8 +44,9 @@ const reducer = (state, action) => {
       const balance = action.payload;
       return { ...state, balances: { ...state?.balances, ...balance } };
     case 'CONNECT_ACCOUNT':
-      const connectedAccount = action?.payload;
-      return { ...state, connectedAccount };
+      const connectedAddress = action?.payload;
+      setStoredAccountAddr(connectedAddress);
+      return { ...state, connectedAddress };
     default:
       throw new Error(`Unknown type: ${action.type}`);
   }
@@ -90,8 +92,10 @@ const KeyringContextProvider = (props) => {
     };
   }, []);
   console.log(keyringState);
-
-  const contextValue = { ...keyringState, keyringDispatch };
+  const { accounts, connectedAddress } = keyringState || {};
+  const connectedAccount =
+    accounts && connectedAddress ? accounts[connectedAddress] : null;
+  const contextValue = { ...keyringState, connectedAccount, keyringDispatch };
   return (
     <KeyringContext.Provider value={contextValue}>
       {props.children}

@@ -4,13 +4,9 @@ import * as util from '@polkadot/util';
 import * as utilCrypto from '@polkadot/util-crypto';
 
 export default function DeveloperConsole(props) {
-  const { api, apiState, keyring, keyringState } = useSubstrate();
+  const { api, apiState } = useSubstrate();
   if (apiState === 'READY') {
     window.api = api;
   }
-  if (keyringState === 'READY') {
-    window.keyring = keyring;
-  }
-
   return null;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import RegistrationLeasePeriod from 'layout/containers/RegistrationLeasePeriod';
-import { useSubstrate } from 'layout/hooks';
+import { useSubstrate, useKeyring } from 'layout/hooks';
 import { getSigningAccount, getBlockTimestampMs } from 'substrate/utils';
 import BN from 'bn.js';
 import moment from 'moment';
@@ -12,9 +12,8 @@ const ExpirationTimeWithExtend = ({ name }) => {
   let { nameRegistration, setNameRegistration } = useNameRegistration();
   let expirationBlockNumber = nameRegistration?.expiry;
   let [expirationTimeDisplay, setExpirationTimeDisplay] = useState('');
-  let { api, apiState, nameServiceProvider, connectedAccount, chainInfo }: any =
-    useSubstrate();
-
+  let { api, apiState, nameServiceProvider, chainInfo }: any = useSubstrate();
+  let { connectedAccount }: any = useKeyring();
   let { blockTimeMs } = chainInfo || {};
   const getExpirationTimeDisplay = async (
     api,

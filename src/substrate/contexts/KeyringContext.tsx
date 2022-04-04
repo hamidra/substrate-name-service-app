@@ -1,8 +1,7 @@
+import { balances } from '@polkadot/types/interfaces/definitions';
 import React, { useContext, useReducer, useEffect } from 'react';
-import config from 'config';
-import BN from 'bn.js';
-import Keyring from '@polkadot/keyring';
-import { useSubstrate } from './SubstrateContext';
+import { useSubstrate } from 'substrate/contexts/SubstrateContext';
+import { getTestPairs, loadBalances, loadAccounts } from 'substrate/extension';
 
 const getStoredAccount = () => {
   try {
@@ -51,45 +50,6 @@ const reducer = (state, action) => {
   }
 };
 
-///
-// get test accounts if needed
-const getTestPairs = () => {
-  const keyring = new Keyring({ type: 'sr25519' });
-  const testUris: Array<{ name: string; uri: string }> = [
-    { name: 'alice', uri: '//Alice' },
-    { name: 'bob', uri: '//Bob' },
-    { name: 'charlie', uri: '//Charlie' },
-    { name: 'dave', uri: '//Dave' },
-    { name: 'eve', uri: '//Eve' },
-    { name: 'fredie', uri: '//Fredie' },
-  ];
-  const testPairs = testUris.map((uri) =>
-    keyring.createFromUri(uri.uri, { isTest: true, name: uri.name })
-  );
-  return testPairs;
-};
-
-///
-// Load balances
-const loadBalances = (api, addresses, dispatch) => {
-  addresses?.forEach((address) => {
-    api.query.system.account(address, ({ data: balance }) => {
-      dispatch({ type: 'BALANCE_UPDATE', payload: { [address]: balance } });
-    });
-  });
-};
-
-const loadAccounts = (pairs, dispatch) => {
-  let accounts = {};
-  pairs?.forEach((pair) => {
-    if (pair?.address) {
-      accounts[pair.address] = pair;
-    }
-  });
-  // load accounts
-  accounts && dispatch({ type: 'LOAD_ACCOUNTS', payload: { ...accounts } });
-};
-
 const KeyringContext = React.createContext({});
 
 const KeyringContextProvider = (props) => {
@@ -117,6 +77,18 @@ const KeyringContextProvider = (props) => {
     }
   }, [keyringState?.accounts]);
 
+  useEffect(() => {
+    return () => {
+      // unsubscribe all balance subscriptions
+      const balanceList = keyringState?.balances
+        ? Object.values<any>(keyringState?.balances)
+        : [];
+      balanceList?.forEach((balance) => {
+        console.log('unsub');
+        balance?.unsub && balance?.unsub();
+      });
+    };
+  }, []);
   console.log(keyringState);
 
   const contextValue = { ...keyringState, keyringDispatch };

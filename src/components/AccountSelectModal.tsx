@@ -1,12 +1,12 @@
 import { Modal } from 'react-bootstrap';
-import { useSubstrate } from 'layout/hooks';
 import AccountItem from 'components/AccountItem';
+import { useKeyring } from 'substrate/contexts/KeyringContext';
 
 const AccountSelectModal = ({ show, handleHide }) => {
-  const { keyring, connectedAccount, substrateDispatch }: any = useSubstrate();
-  const accounts = keyring?.getPairs();
+  const { keyringDispatch, connectedAccount, accounts }: any = useKeyring();
+  const accountList = accounts ? Object.values<any>(accounts) : [];
   const logout = () => {
-    substrateDispatch({ type: 'CONNECT_ACCOUNT', payload: null });
+    keyringDispatch({ type: 'CONNECT_ACCOUNT', payload: null });
   };
   const getAccountBorder = (account) =>
     account?.address === connectedAccount?.address
@@ -24,11 +24,11 @@ const AccountSelectModal = ({ show, handleHide }) => {
         >
           <i className="bi bi-box-arrow-right" /> Exit
         </div>
-        {accounts?.map((account) => (
+        {accountList?.map((account) => (
           <div
             className={`p-2 border ${getAccountBorder(account)}`}
             onClick={() => {
-              substrateDispatch({ type: 'CONNECT_ACCOUNT', payload: account });
+              keyringDispatch({ type: 'CONNECT_ACCOUNT', payload: account });
               handleHide();
             }}
           >

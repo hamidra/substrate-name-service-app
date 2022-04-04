@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { useSubstrate } from 'layout/hooks';
 import { loadExtension } from 'substrate/extension';
 import AccountItem from 'components/AccountItem';
 import AccountSelectModal from 'components/AccountSelectModal';
+import { useKeyring } from 'substrate/contexts/KeyringContext';
 
 const ConnectButton = () => {
   return (
@@ -21,18 +21,20 @@ const ConnectButton = () => {
 
 const AccountConnect = () => {
   let [showModal, setShowModal] = useState(false);
-  let { substrateDispatch, ...state }: any = useSubstrate();
-  let account = state?.connectedAccount;
+  let { keyringDispatch, connectedAccount }: any = useKeyring();
   const clickHandler = async () => {
-    //loadExtension(state, substrateDispatch);
+    loadExtension(keyringDispatch);
     setShowModal(true);
   };
   return (
     <>
       <div className="d-flex flex-row ">
         <div onClick={() => clickHandler()}>
-          {account ? (
-            <AccountItem accountAddress={account?.address} shortMode={true} />
+          {connectedAccount ? (
+            <AccountItem
+              accountAddress={connectedAccount?.address}
+              shortMode={true}
+            />
           ) : (
             <ConnectButton />
           )}

@@ -9,13 +9,10 @@ interface PageProps {
 const MainPage = ({ className }: PageProps) => {
   let navigate = useNavigate();
   return (
-    <div
-      className={`container text-center text-uppercase landingpage ${
-        className || ''
-      }`}
-    >
-      <div className="card-header-title">
-        Dot Decentralized <br />
+    <div className={`container text-center landingpage ${className || ''}`}>
+      <div className="text-uppercase card-header-title">
+        Dot. <br />
+        Decentralized <br />
         Name Service
       </div>
       <div className="text-center text-card">
@@ -38,7 +35,7 @@ const MainPage = ({ className }: PageProps) => {
 };
 
 const StyledMainPage = styled(MainPage)`
-  margin-top: 15vh;
+  margin-top: 10vh;
 `;
 
 export default StyledMainPage;

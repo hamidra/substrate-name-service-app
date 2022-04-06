@@ -69,11 +69,23 @@ const RegistrationForm = () => {
     };
   }, [progressTimer]);
 
-  const getRegistrationButtonProps = (step) => {
+  const getRegistrationButtonProps = (step, currentStepProgress) => {
+    const isSpinning = () => {
+      if (
+        !currentStepProgress ||
+        currentStepProgress === 0 ||
+        currentStepProgress === 100
+      ) {
+        return false;
+      } else {
+        return true;
+      }
+    };
     let btnProps = {
       title: 'Request to Register',
       disabled: false,
       clickHandler: () => handleRegistrationCommit(),
+      spinner: isSpinning(),
     };
     switch (step) {
       case 1:
@@ -85,6 +97,7 @@ const RegistrationForm = () => {
           clickHandler: () => {
             return null;
           },
+          spinner: false,
         };
         break;
       case 3:
@@ -92,6 +105,7 @@ const RegistrationForm = () => {
           title: 'Register',
           disabled: false,
           clickHandler: () => handleRegistrationReveal(),
+          spinner: isSpinning(),
         };
         break;
     }
@@ -102,7 +116,8 @@ const RegistrationForm = () => {
     title: btnTitle,
     disabled: btnDisabled,
     clickHandler: btnClickHandler,
-  } = getRegistrationButtonProps(currentStep);
+    spinner,
+  } = getRegistrationButtonProps(currentStep, currentStepProgress);
 
   const handleRegistrationReveal = async () => {
     setError(null);
@@ -195,6 +210,13 @@ const RegistrationForm = () => {
               onClick={(e) => btnClickHandler()}
               disabled={btnDisabled}
             >
+              {spinner && (
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              )}
               {btnTitle}
             </button>
           </div>

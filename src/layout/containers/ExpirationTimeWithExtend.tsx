@@ -9,6 +9,7 @@ import { useNameRegistration } from 'layout/hooks';
 const ExpirationTimeWithExtend = ({ name }) => {
   let [leaseTime, setLeaseTime] = useState(1);
   let [editMode, setEditMode] = useState(false);
+  let [processing, setProcessing] = useState(false);
   let { nameRegistration, setNameRegistration } = useNameRegistration();
   let expirationBlockNumber = nameRegistration?.expiry;
   let [expirationTimeDisplay, setExpirationTimeDisplay] = useState('');
@@ -59,18 +60,24 @@ const ExpirationTimeWithExtend = ({ name }) => {
   }, [api, apiState, blockTimeMs, expirationBlockNumber]);
   let cancelClickHandler = () => {
     setEditMode(false);
+    setProcessing(false);
   };
 
-  let extendClickHandler = async () => {
+  let extendClickHandler = () => {
     try {
+      setProcessing(false);
       if (!editMode) {
         setEditMode(true);
       } else {
-        await nameExtensionHandler();
-        setEditMode(false);
+        setProcessing(true);
+        nameExtensionHandler().then(async () => {
+          setEditMode(false);
+          setProcessing(false);
+          let registration = await nameServiceProvider?.getRegistration(name);
+          setNameRegistration(registration?.unwrapOr(null)?.toJSON());
+        });
+
         // update the name registration
-        let registration = await nameServiceProvider?.getRegistration(name);
-        setNameRegistration(registration?.unwrapOr(null)?.toJSON());
       }
     } catch (err) {}
   };
@@ -124,6 +131,7 @@ const ExpirationTimeWithExtend = ({ name }) => {
                 className="btn btn-outline-primary mx-3"
                 type="button"
                 onClick={() => cancelClickHandler()}
+                disabled={processing}
               >
                 Cancel
               </button>
@@ -131,7 +139,15 @@ const ExpirationTimeWithExtend = ({ name }) => {
                 className="btn btn-outline-primary  mx-3"
                 type="button"
                 onClick={() => extendClickHandler()}
+                disabled={processing}
               >
+                {processing && (
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                )}
                 Extend
               </button>
             </div>

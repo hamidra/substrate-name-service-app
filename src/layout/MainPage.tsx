@@ -27,6 +27,8 @@ const MainPage = ({ className }: PageProps) => {
           <SearchBox
             placeholder="Find your perfect Dot name"
             handleSearch={(phrase) => {
+              // ToDo: this logic (adding .dot) should be refactored to be configurable by components.
+              phrase = `${phrase}.dot`;
               // validate phrase
               navigate(`name/${phrase}`);
             }}

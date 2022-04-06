@@ -9,18 +9,14 @@ interface PageProps {
 const MainPage = ({ className }: PageProps) => {
   let navigate = useNavigate();
   return (
-    <div
-      className={`container text-center text-uppercase landingpage ${
-        className || ''
-      }`}
-    >
+    <div className={`container text-center landingpage ${className || ''}`}>
       <div className="card-header-title">
         Dot Decentralized <br />
         Name Service
       </div>
-      <div className="text-center text-card">
-        Find a perfect name for your dot account <br />
-        and register it in Dot's Decentralized Name Service.
+      <div className="text-center text-uppercase text-card">
+        Find a perfect name for your dot account. <br />
+        Register it in Dot Name Service to use in your wallet and favorite apps.
       </div>
       <div className="row justify-content-center mt-4">
         <div className="col-9">

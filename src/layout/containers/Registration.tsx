@@ -12,13 +12,18 @@ const RegistrationForm = () => {
   const { nameServiceProvider }: any = useSubstrate();
   const { connectedAccount }: any = useKeyring();
   let { name } = useParams();
-  let [leasePeriod, setLeasePeriod] = useState(new BN(1));
+  let [leaseTime, setLeaseTime] = useState(1); // in years
   let [currentStep, setCurrentStep] = useState(1);
   let [currentStepProgress, setCurrentStepProgress] = useState(0);
   let [progressTimer, setProgressTimer] = useState(null);
   let currentStepProgressRef = useRef(currentStepProgress);
   let [salt, setSalt] = useState(null);
   const [error, setError] = useState(null);
+
+  // leasperiod
+  const getLeasePeriod = () => {
+    return nameServiceProvider?.getPeriodsFromYears(leaseTime);
+  };
 
   // load the stored salt
   const storedSalt = localStorage.getItem(name);
@@ -109,6 +114,7 @@ const RegistrationForm = () => {
       }
       // reset any error from previous runs
       let connectedSigningAccount = await getSigningAccount(connectedAccount);
+      const leasePeriod = getLeasePeriod();
       nameServiceProvider
         .reveal(connectedSigningAccount, name, salt, leasePeriod)
         .then(() => {
@@ -174,8 +180,8 @@ const RegistrationForm = () => {
     <>
       <form className="px-2">
         <RegistrationLeasePeriod
-          leasePeriod={leasePeriod}
-          setLeasePeriod={(leasePeriod) => setLeasePeriod(leasePeriod)}
+          leaseTime={leaseTime}
+          setLeaseTime={(leaseTime) => setLeaseTime(leaseTime)}
         />
         <RegistrationSteps
           currentStep={currentStep}

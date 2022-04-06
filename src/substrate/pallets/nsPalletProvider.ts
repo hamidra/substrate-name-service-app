@@ -1,7 +1,10 @@
 import { signAndSendTx } from 'substrate/txHandler';
-import { getAccountAddress } from 'substrate/utils';
+import { calcBlockTimeMs, getAccountAddress } from 'substrate/utils';
 import { blake2AsHex } from '@polkadot/util-crypto';
 import { numberToU8a, stringToU8a, hexToU8a } from '@polkadot/util';
+import BN from 'bn.js';
+import { timestampMsToBlockCount } from 'substrate/utils';
+import moment from 'moment';
 
 interface NameServiceConstants {
   commitmentDeposit: number;
@@ -17,6 +20,7 @@ interface NameServiceConstants {
 class NameServiceProvider {
   apiClient;
   constants: any = {};
+  blockTimeMs: number;
   constructor(api) {
     this.apiClient = api;
   }
@@ -36,6 +40,7 @@ class NameServiceProvider {
       this.apiClient.consts.nameService?.notificationPeriod;
     this.constants.feePerRegistrationPeriod =
       this.apiClient.consts.nameService?.feePerRegistrationPeriod;
+    this.blockTimeMs = calcBlockTimeMs(this.apiClient);
   }
 
   generateCommitHashBytes = (name: string, secret: number) => {
@@ -60,6 +65,16 @@ class NameServiceProvider {
   generateNameHash = (name: string) => {
     const hash = blake2AsHex(name);
     return hash;
+  };
+
+  getPeriodsFromYears = (years: number) => {
+    const { blocksPerRegistrationPeriod } = this?.constants || {};
+    if (blocksPerRegistrationPeriod && this.blockTimeMs) {
+      let timestampMs = moment.duration(years, 'years').asMilliseconds();
+      let blocks = timestampMsToBlockCount(timestampMs, this.blockTimeMs);
+      let periods = new BN(blocks)?.div(blocksPerRegistrationPeriod);
+      return periods?.toNumber();
+    }
   };
 
   async getCommitment(commitmentHash) {

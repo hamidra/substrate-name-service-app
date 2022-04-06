@@ -5,10 +5,11 @@ import { useParams } from 'react-router-dom';
 import { useSubstrate } from 'layout/hooks';
 import BN from 'bn.js';
 
-const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
+const RegistrationLeasePeriod = ({ leaseTime, setLeaseTime }) => {
   let { name } = useParams();
   const { api, nameServiceProvider, connectedAccount, chainInfo }: any =
     useSubstrate();
+
   const {
     tierThreeLetters,
     tierFourLetters,
@@ -16,6 +17,8 @@ const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
     blocksPerRegistrationPeriod: blocksPerPeriod,
     feePerRegistrationPeriod: feePerPeriod,
   } = nameServiceProvider?.constants || {};
+
+  const leasePeriod = nameServiceProvider?.getPeriodsFromYears(leaseTime);
 
   const getTierFee = (name: string): BN => {
     let charCount = name?.length;
@@ -31,15 +34,37 @@ const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
     }
     return fee;
   };
-  const getRegistrationFee = (name: string, periods: BN): BN => {
+
+  const getRegistrationFee = (name: string, periods: number): BN => {
     let label = name?.split('.')[0];
     if (!label || !periods || !feePerPeriod) {
       return;
     }
+    let periodsBN = new BN(periods);
     let baseFee = getTierFee(label);
-    let periodFee = periods.mul(feePerPeriod);
+    let periodFee = periodsBN.mul(feePerPeriod);
     let regFee = baseFee.add(periodFee);
     return regFee;
+  };
+
+  const getLeasePeriodInBlocks = (leasePeriod): number => {
+    let blockCount;
+    if (leasePeriod && blocksPerPeriod) {
+      const leasePeriodBN = new BN(leasePeriod);
+      blockCount = leasePeriodBN.mul(blocksPerPeriod).toNumber();
+    }
+    return blockCount;
+  };
+
+  const getLeasePeriodDisplay = (leasePeriod): string => {
+    let leasePeriodDisplay = '';
+    if (chainInfo) {
+      let leaseBlockCount = getLeasePeriodInBlocks(leasePeriod);
+      let { blockTimeMs }: { blockTimeMs: number } = chainInfo;
+      let leaseTimespan = blockCountToTimespanMs(blockTimeMs, leaseBlockCount);
+      leasePeriodDisplay = moment.duration(leaseTimespan).humanize();
+    }
+    return leasePeriodDisplay;
   };
 
   const registrationFee = getRegistrationFee(name, leasePeriod);
@@ -49,43 +74,27 @@ const RegistrationLeasePeriod = ({ leasePeriod, setLeasePeriod }) => {
     5
   );
 
-  const _setLeasePeriod = (periods: number) => {
-    setLeasePeriod(new BN(periods));
-  };
-  const _getLeasePeriod = (): number => {
-    return leasePeriod.toNumber();
-  };
-
-  const _getLeasePeriodInBlocks = (): number => {
-    let blockCount;
-    if (leasePeriod && blocksPerPeriod) {
-      blockCount = leasePeriod.mul(blocksPerPeriod).toNumber();
+  const _setLeaseTime = (years: number) => {
+    if (0 < years && years <= 100000) {
+      setLeaseTime(years);
+    } else {
+      setLeaseTime(0);
     }
-    return blockCount;
-  };
-
-  const _getLeasePeriodDisplay = (): string => {
-    let leasePeriodDisplay = '';
-    if (chainInfo) {
-      let leaseBlockCount = _getLeasePeriodInBlocks();
-      let { blockTimeMs }: { blockTimeMs: number } = chainInfo;
-      let leaseTimespan = blockCountToTimespanMs(blockTimeMs, leaseBlockCount);
-      leasePeriodDisplay = moment.duration(leaseTimespan).humanize();
-    }
-    return leasePeriodDisplay;
   };
 
   return (
     <div className="row justify-content-between">
       <div className="col-12 col-md-6 my-2">
         <CounterInput
-          value={_getLeasePeriod()}
-          unit={`x ${blocksPerPeriod} blocks`}
+          value={leaseTime}
+          unit={leaseTime === 1 ? `~ year` : `~ years`}
           step={1}
-          setValue={(value) => _setLeasePeriod(value)}
+          setValue={(value) => _setLeaseTime(value)}
         />
         <div className="mb-2 form-text">Registration Period</div>
-        <div>{`for estimated registration period of ${_getLeasePeriodDisplay()}`}</div>
+        <div>{`for registration period of ${getLeasePeriodInBlocks(
+          leasePeriod
+        )} blocks`}</div>
       </div>
       <div className="col-12 col-md-6 my-2">
         <div className="fw-light fs-4">{`${registrationFeeDisplay} DOT`}</div>

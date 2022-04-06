@@ -3,6 +3,7 @@ import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import { BN } from 'bn.js';
 import { bnMin } from '@polkadot/util';
+import { timeStamp } from 'console';
 
 /**
  * trims the specified character from the end of the string.
@@ -90,6 +91,13 @@ export const blockCountToTimespanMs = (
   blockCount: number
 ): number => {
   return blockTimeMs * blockCount;
+};
+
+export const timestampMsToBlockCount = (
+  timestampMs: number,
+  blockTimeMs: number
+): number => {
+  return Math.floor(timestampMs / blockTimeMs);
 };
 
 export const getBlockTimestampMs = (

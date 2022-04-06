@@ -26,7 +26,7 @@ const SearchBox = ({
   };
   return (
     <>
-      <InputGroup className={`mb-3 shadow ${className || ''}`}>
+      <InputGroup className={`mb-3 ${className || ''}`}>
         <SearchInput
           placeholder={placeholder || ''}
           aria-label="Recipient's username"

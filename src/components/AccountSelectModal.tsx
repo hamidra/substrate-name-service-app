@@ -29,7 +29,7 @@ const AccountSelectModal = ({ show, handleHide }) => {
         </div>
         {accountList?.map((account) => (
           <div
-            className={`p-2 border ${getAccountBorder(account)}`}
+            className={`p-2 border rounded m-2 ${getAccountBorder(account)}`}
             onClick={() => {
               keyringDispatch({
                 type: 'CONNECT_ACCOUNT',
@@ -42,6 +42,7 @@ const AccountSelectModal = ({ show, handleHide }) => {
               accountName={account?.meta?.name}
               accountAddress={account?.address}
               shortMode={true}
+              size={40}
             />
           </div>
         ))}

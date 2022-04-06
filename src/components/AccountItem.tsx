@@ -10,12 +10,14 @@ interface AccountItemProps {
   accountName?: string;
   balanceStr?: string;
   shortMode?: boolean;
+  size?: number;
 }
 const AccountItem = ({
   accountAddress,
   accountName,
   balanceStr,
   shortMode,
+  size,
   ...rest
 }: AccountItemProps) => {
   const nameStr =
@@ -30,7 +32,7 @@ const AccountItem = ({
   return (
     <div className="d-flex align-items-center" {...rest}>
       <div className="me-2">
-        <Identicon value={accountAddress} size={40} theme="polkadot" />
+        <Identicon value={accountAddress} size={size} theme="polkadot" />
       </div>
       <div>
         <Row className="flex-column flex-sm-row">

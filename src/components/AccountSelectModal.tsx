@@ -22,7 +22,10 @@ const AccountSelectModal = ({ show, handleHide }) => {
             handleHide();
           }}
         >
-          <i className="bi bi-box-arrow-right" /> Exit
+          <div>
+            <i className="bi bi-box-arrow-right mr-2" />
+          </div>
+          <div>Exit</div>
         </div>
         {accountList?.map((account) => (
           <div

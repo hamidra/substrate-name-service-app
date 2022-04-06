@@ -25,7 +25,7 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
         </div>
         <div
           className={`col-12 pt-2 col-md-4 pt-md-3 ${
-            currentStep === 2 ? 'text-success' : 'text-muted'
+            currentStep === 2 ? 'text-primary' : 'text-muted'
           }`}
         >
           <h4> Step 2 : Wait at least for 1 minute</h4>
@@ -36,7 +36,7 @@ const RegistrationSteps = ({ currentStep, currentStepProgress }) => {
         </div>
         <div
           className={`col-12 pt-2 col-md-4 pt-md-3 ${
-            currentStep === 3 ? 'text-success' : 'text-muted'
+            currentStep === 3 ? 'text-primary' : 'text-muted'
           }`}
         >
           <h4> Step 3 :Complete your registration</h4>

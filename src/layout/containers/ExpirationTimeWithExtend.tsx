@@ -7,7 +7,7 @@ import moment from 'moment';
 import { useNameRegistration } from 'layout/hooks';
 
 const ExpirationTimeWithExtend = ({ name }) => {
-  let [leasePeriod, setLeasePeriod] = useState(new BN(1));
+  let [leaseTime, setLeaseTime] = useState(1);
   let [editMode, setEditMode] = useState(false);
   let { nameRegistration, setNameRegistration } = useNameRegistration();
   let expirationBlockNumber = nameRegistration?.expiry;
@@ -15,6 +15,12 @@ const ExpirationTimeWithExtend = ({ name }) => {
   let { api, apiState, nameServiceProvider, chainInfo }: any = useSubstrate();
   let { connectedAccount }: any = useKeyring();
   let { blockTimeMs } = chainInfo || {};
+
+  // leasperiod
+  const getLeasePeriod = () => {
+    return nameServiceProvider?.getPeriodsFromYears(leaseTime);
+  };
+
   const getExpirationTimeDisplay = async (
     api,
     blockTimeMs,
@@ -70,6 +76,7 @@ const ExpirationTimeWithExtend = ({ name }) => {
   };
 
   let nameExtensionHandler = async () => {
+    const leasePeriod = getLeasePeriod();
     let connectedSigningAccount = await getSigningAccount(connectedAccount);
     return nameServiceProvider.renew(
       connectedSigningAccount,
@@ -104,8 +111,8 @@ const ExpirationTimeWithExtend = ({ name }) => {
             <div className="col">
               <div>
                 <RegistrationLeasePeriod
-                  leasePeriod={leasePeriod}
-                  setLeasePeriod={(leasePeriod) => setLeasePeriod(leasePeriod)}
+                  leaseTime={leaseTime}
+                  setLeaseTime={(leaseTime) => setLeaseTime(leaseTime)}
                 />
               </div>
             </div>

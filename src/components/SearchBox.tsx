@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Button, InputGroup, FormControl } from 'react-bootstrap';
+import { InputGroup, FormControl } from 'react-bootstrap';
 import { useState } from 'react';
 
 interface SearchBoxProps {
@@ -35,12 +35,12 @@ const SearchBox = ({
           onChange={(e) => setSearchValue(e.target.value)}
           onKeyPress={(e) => handleKeypress(e)}
         />
-        <Button
-          variant="outline-secondary"
+        <button
+          className="btn btn-outline-primary"
           onClick={() => handleSearch(searchValue)}
         >
           Search
-        </Button>
+        </button>
       </InputGroup>
     </>
   );

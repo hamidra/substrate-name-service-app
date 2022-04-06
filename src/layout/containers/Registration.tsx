@@ -159,7 +159,7 @@ const RegistrationForm = () => {
               clearInterval(timer);
               setProgressTimer(null);
             }
-          }, 6000);
+          }, 600);
           setProgressTimer(timer);
         });
 

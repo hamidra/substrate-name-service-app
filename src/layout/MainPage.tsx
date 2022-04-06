@@ -16,8 +16,9 @@ const MainPage = ({ className }: PageProps) => {
         Name Service
       </div>
       <div className="text-center text-card">
-        Find a perfect name for your dot account <br />
-        and register it in Dot's Decentralized Name Service.
+        Find a perfect name for your Dot account. <br />
+        Register it with Dot Name Service to use in your wallet and favorite
+        apps.
       </div>
       <div className="row justify-content-center mt-4">
         <div className="col-9">

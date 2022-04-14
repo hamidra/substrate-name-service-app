@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 import { useSubstrate, useKeyring } from 'layout/hooks';
 import { get32BitSalt, getSigningAccount } from 'substrate/utils';
 import { useEffect } from 'react';
-import BN from 'bn.js';
 import { useNameRegistration } from 'layout/hooks';
 import RegistrationSteps from 'layout/containers/RegistrationSteps';
 

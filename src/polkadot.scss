@@ -113,11 +113,6 @@ $h4-font-size: 1.25rem;
 $h5-font-size: 1rem;
 
 // Navbar
-.navbar-nav {
-  border-radius: 2rem;
-  font-weight: 500;
-}
-
 .navbar {
   img {
     background-color: #fff;
@@ -165,7 +160,9 @@ $h5-font-size: 1rem;
 }
 
 .nav-pills {
+  border-radius: 2rem;
   background-color: #fff;
+  font-weight: 500;
 }
 $nav-pills-border-radius: 1.5rem !important;
 $nav-pills-link-active-color: $gray-900 !important;

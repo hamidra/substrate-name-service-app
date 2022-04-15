@@ -1,12 +1,11 @@
 import { useState, useRef } from 'react';
-import RegistrationLeasePeriod from 'layout/containers/RegistrationLeasePeriod';
 import { useParams } from 'react-router-dom';
 import { useSubstrate, useKeyring } from 'layout/hooks';
 import { get32BitSalt, getSigningAccount } from 'substrate/utils';
 import { useEffect } from 'react';
 import { useNameRegistration } from 'layout/hooks';
-import RegistrationSteps from 'layout/containers/RegistrationSteps';
 import RegRequestCard from './RegRequestCard';
+import RegConfirmCard from './RegConfirmCard';
 
 const RegistrationForm = () => {
   const { nameServiceProvider }: any = useSubstrate();
@@ -18,6 +17,7 @@ const RegistrationForm = () => {
   let [progressTimer, setProgressTimer] = useState(null);
   let currentStepProgressRef = useRef(currentStepProgress);
   let [salt, setSalt] = useState(null);
+  let [commitment, setCommitment] = useState(null);
   const [error, setError] = useState(null);
 
   // leasperiod
@@ -26,20 +26,34 @@ const RegistrationForm = () => {
   };
 
   // load the stored salt
-  const storedSalt = localStorage.getItem(name);
-  const nameSalt =
-    !storedSalt || isNaN(Number(storedSalt)) ? null : Number(storedSalt);
+  const loadStoredRegistration = (name) => {
+    try {
+      const regStr = localStorage.getItem(name);
+      const regObj = regStr ? JSON.parse(regStr) : null;
 
+      if (regObj?.salt && !isNaN(Number(regObj.salt))) {
+        regObj.salt = Number(regObj.salt);
+      }
+      if (regObj?.leaseTime && !isNaN(Number(regObj.leaseTime))) {
+        regObj.leaseTime = Number(regObj.leaseTime);
+      }
+      return regObj;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const storedReg = loadStoredRegistration(name);
   // check any available commitments for the (name, nameSalt) to fins the current registration state
   const loadRegistrationState = async (name, nameSalt) => {
     let commitment;
     if (name && nameSalt) {
-      nameSalt && setSalt(nameSalt);
       let commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
         name,
         nameSalt
       );
       commitment = await nameServiceProvider.getCommitment(commitmentHash);
+      setCommitment(commitment);
     }
     // ToDo: match the connected account address with the commentment.who address
 
@@ -56,10 +70,12 @@ const RegistrationForm = () => {
   };
 
   useEffect(() => {
+    setSalt(storedReg?.salt);
+    setLeaseTime(storedReg?.leaseTime);
     if (nameServiceProvider) {
-      loadRegistrationState(name, nameSalt);
+      loadRegistrationState(name, storedReg?.salt);
     }
-  }, [nameSalt, nameServiceProvider, name]);
+  }, [storedReg?.leaseTime, storedReg?.salt, nameServiceProvider, name]);
 
   // clearInterval if there is any progress timer running
   useEffect(() => {
@@ -69,7 +85,20 @@ const RegistrationForm = () => {
     };
   }, [progressTimer]);
 
-  const isSpinning = () => {
+  const storeRegistration = (name, salt, leaseTime) => {
+    localStorage.setItem(name, JSON.stringify({ salt, leaseTime }));
+  };
+
+  const _setLeaseTime = (leaseTime) => {
+    setLeaseTime(leaseTime);
+
+    // store leaseTime in local storage if there is a registration in progress
+    if (storedReg) {
+      localStorage.setItem(name, JSON.stringify({ ...storedReg, leaseTime }));
+    }
+  };
+
+  const isProcessing = () => {
     if (
       !currentStepProgress ||
       currentStepProgress === 0 ||
@@ -81,12 +110,12 @@ const RegistrationForm = () => {
     }
   };
 
-  const getRegistrationButtonProps = (step, currentStepProgress) => {
+  /*const getRegistrationButtonProps = (step, currentStepProgress) => {
     let btnProps = {
       title: 'Request to Register',
       disabled: false,
       clickHandler: () => handleRegistrationCommit(),
-      spinner: isSpinning(),
+      spinner: isProcessing(),
     };
     switch (step) {
       case 1:
@@ -106,7 +135,7 @@ const RegistrationForm = () => {
           title: 'Register',
           disabled: false,
           clickHandler: () => handleRegistrationReveal(),
-          spinner: isSpinning(),
+          spinner: isProcessing(),
         };
         break;
     }
@@ -118,7 +147,19 @@ const RegistrationForm = () => {
     disabled: btnDisabled,
     clickHandler: btnClickHandler,
     spinner,
-  } = getRegistrationButtonProps(currentStep, currentStepProgress);
+  } = getRegistrationButtonProps(currentStep, currentStepProgress);*/
+
+  const getRegRequest = () => {
+    const { who, when } = commitment || {};
+    let regRequest = {
+      name,
+      registrant: who,
+      controller: who,
+      expiration: when,
+      fee: { reg: '100', tx: '0.0034' },
+    };
+    return regRequest;
+  };
 
   const handleRegistrationReveal = async () => {
     setError(null);
@@ -145,7 +186,7 @@ const RegistrationForm = () => {
     }
   };
 
-  const handleRegistrationCommit = async () => {
+  const handleRegistrationCommit = async (name, leaseTime) => {
     // reset any error from previous runs
     setError(null);
     try {
@@ -156,7 +197,6 @@ const RegistrationForm = () => {
       }
       let connectedSigningAccount = await getSigningAccount(connectedAccount);
       const salt = get32BitSalt();
-      setSalt(salt);
       const commitHash = nameServiceProvider.generateCommitmentHashCodec(
         name,
         salt
@@ -166,9 +206,10 @@ const RegistrationForm = () => {
         .then(() => {
           setCurrentStep(2);
           setCurrentStepProgress(0);
-
-          // store salt in local storage to keep the current commitment state
-          localStorage.setItem(name, salt.toString());
+          setSalt(salt);
+          setLeaseTime(leaseTime);
+          // store commited registration in local storage
+          storeRegistration(name, salt, leaseTime);
 
           let timer = setInterval(() => {
             let newProgress = currentStepProgressRef.current + 10;
@@ -194,11 +235,16 @@ const RegistrationForm = () => {
   };
   return (
     <>
-      <RegRequestCard
+      {/*<RegRequestCard
         name={name}
         initLeasetime={leaseTime}
-        isProcessing={isSpinning()}
-        handleRegistration={() => handleRegistrationCommit()}
+        isProcessing={isProcessing()}
+        handleRegistration={handleRegistrationCommit}
+        error={error}
+  />*/}
+      <RegConfirmCard
+        regRequest={getRegRequest()}
+        isProcessing={isProcessing()}
         error={error}
       />
     </>

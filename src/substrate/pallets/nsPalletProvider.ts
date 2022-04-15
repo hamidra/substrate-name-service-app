@@ -78,7 +78,10 @@ class NameServiceProvider {
   };
 
   async getCommitment(commitmentHash) {
-    return this.apiClient.query.nameService.commitments(commitmentHash);
+    let commitment = await this.apiClient.query.nameService.commitments(
+      commitmentHash
+    );
+    return commitment.unwrapOr(null)?.toHuman();
   }
 
   async getRegistration(name) {

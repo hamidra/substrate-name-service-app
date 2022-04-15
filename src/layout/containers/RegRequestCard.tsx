@@ -30,7 +30,7 @@ const RegRequestCard = ({
           <button
             type="button"
             className="btn btn-outline-primary"
-            onClick={(e) => handleRegistration()}
+            onClick={(e) => handleRegistration(name, leaseTime)}
             disabled={isProcessing}
           >
             {isProcessing && (

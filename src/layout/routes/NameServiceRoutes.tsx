@@ -1,5 +1,5 @@
 import MainPage from 'layout/MainPage';
-import RegistrationCard from 'layout/containers/Registration';
+import RegistrationCard from 'layout/containers/Registrationcard';
 import SubdomainsCard from 'layout/containers/Subdomains';
 import NamePage from 'layout/NamePage';
 import NameDetailsCard from 'layout/containers/NameDetail';

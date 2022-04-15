@@ -33,14 +33,10 @@ const NamePage = ({ className }: NamePageProps) => {
   let blockTime = api && calcBlockTimeMs(api);
   return (
     <div className="container d-flex justify-content-center">
-      <Card className={`m-sm-5 w-100 ${className}`}>
-        <Card.Header>
-          <div className="d-flex flex-column flex-md-row px-md-4 py-1 justify-content-between">
-            <div className="d-flex align-items-center">
-              <div className="fw-light fs-4">{name}</div>
-            </div>
-          </div>
-        </Card.Header>
+      <Card
+        style={{ width: 580, maxWidth: '100%', minHeight: 540 }}
+        className="shadow"
+      >
         <Card.Body>
           <Outlet
             context={{

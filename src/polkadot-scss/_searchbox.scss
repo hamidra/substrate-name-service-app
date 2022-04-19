@@ -1,0 +1,10 @@
+// search box
+.search-box {
+  position: relative;
+  .search-icon {
+    position: absolute;
+    &:hover {
+      color: $primary;
+    }
+  }
+}

@@ -77,8 +77,19 @@ class NameServiceProvider {
     }
   };
 
+  getBlockCountFromYears = (years: number) => {
+    if (this.blockTimeMs) {
+      let timestampMs = moment.duration(years, 'years').asMilliseconds();
+      let blocks = timestampMsToBlockCount(timestampMs, this.blockTimeMs);
+      return blocks;
+    }
+  };
+
   async getCommitment(commitmentHash) {
-    return this.apiClient.query.nameService.commitments(commitmentHash);
+    let commitment = await this.apiClient.query.nameService.commitments(
+      commitmentHash
+    );
+    return commitment.unwrapOr(null)?.toHuman();
   }
 
   async getRegistration(name) {

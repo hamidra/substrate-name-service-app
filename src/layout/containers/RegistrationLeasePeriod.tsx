@@ -84,22 +84,25 @@ const RegistrationLeasePeriod = ({ leaseTime, setLeaseTime }) => {
 
   return (
     <div className="row justify-content-between">
-      <div className="col-12 col-md-6 my-2">
+      <div className="col-12 my-2">
+        <div className="form-label">Registration Period</div>
         <CounterInput
           value={leaseTime}
           unit={leaseTime === 1 ? `~ year` : `~ years`}
           step={1}
           setValue={(value) => _setLeaseTime(value)}
         />
-        <div className="mb-2 form-text">Registration Period</div>
-        <div>{`for registration period of ${getLeasePeriodInBlocks(
+        <div className="form-text">{`for registration period of ${getLeasePeriodInBlocks(
           leasePeriod
         )} blocks`}</div>
       </div>
-      <div className="col-12 col-md-6 my-2">
-        <div className="fw-light fs-4">{`${registrationFeeDisplay} DOT`}</div>
-        <div className="mb-2 form-text">Registration Price</div>
-        <div>{`+ 0.001 DOT tx fees`}</div>
+      <div className="w-100 my-2 border-top"></div>
+      <div className="col-12 my-2 d-flex flex-column flex-md-row justify-content-between">
+        <div className="form-label">Registration Price</div>
+        <div className="d-flex flex-column">
+          <div className="fw-light fs-4">{`${registrationFeeDisplay} DOT`}</div>
+          <div>{`+ 0.001 DOT tx fees`}</div>
+        </div>
       </div>
     </div>
   );

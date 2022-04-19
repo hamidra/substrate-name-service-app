@@ -33,19 +33,12 @@ const NamePage = ({ className }: NamePageProps) => {
   let blockTime = api && calcBlockTimeMs(api);
   return (
     <div className="container d-flex justify-content-center">
-      <Card
-        style={{ width: 580, maxWidth: '100%', minHeight: 540 }}
-        className="shadow"
-      >
-        <Card.Body>
-          <Outlet
-            context={{
-              nameRegistration: nameRegistration,
-              setNameRegistration,
-            }}
-          />
-        </Card.Body>
-      </Card>
+      <Outlet
+        context={{
+          nameRegistration: nameRegistration,
+          setNameRegistration,
+        }}
+      />
     </div>
   );
 };

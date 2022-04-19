@@ -1,11 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { Card } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import { useSubstrate, useKeyring } from 'layout/hooks';
 import { get32BitSalt, getSigningAccount } from 'substrate/utils';
-import { useEffect } from 'react';
 import { useNameRegistration } from 'layout/hooks';
 import RegRequestCard from './RegRequestCard';
 import RegConfirmCard from './RegConfirmCard';
+import RegWaitCard from './RegWaitCard';
 
 const RegistrationForm = () => {
   const { nameServiceProvider }: any = useSubstrate();
@@ -151,11 +152,14 @@ const RegistrationForm = () => {
 
   const getRegRequest = () => {
     const { who, when } = commitment || {};
+    const leaseBlocks =
+      leaseTime && nameServiceProvider?.getBlockCountFromYears(leaseTime);
+    const leasePeriod = { years: leaseTime, blocks: leaseBlocks };
     let regRequest = {
       name,
       registrant: who,
       controller: who,
-      expiration: when,
+      leasePeriod,
       fee: { reg: '100', tx: '0.0034' },
     };
     return regRequest;
@@ -235,18 +239,37 @@ const RegistrationForm = () => {
   };
   return (
     <>
-      {/*<RegRequestCard
-        name={name}
-        initLeasetime={leaseTime}
-        isProcessing={isProcessing()}
-        handleRegistration={handleRegistrationCommit}
-        error={error}
-  />*/}
-      <RegConfirmCard
-        regRequest={getRegRequest()}
-        isProcessing={isProcessing()}
-        error={error}
-      />
+      <Card
+        style={{ width: 580, maxWidth: '100%', minHeight: 540 }}
+        className="shadow"
+      >
+        <Card.Body className="d-flex flex-column">
+          {currentStep === 1 && (
+            <RegRequestCard
+              name={name}
+              initLeasetime={leaseTime}
+              isProcessing={isProcessing()}
+              handleRegistration={handleRegistrationCommit}
+              error={error}
+            />
+          )}
+          {currentStep === 2 && (
+            <RegWaitCard
+              name={name}
+              waitPeriod={60}
+              passedPeriod={(currentStepProgress / 100) * 60}
+            />
+          )}
+          {currentStep === 3 && (
+            <RegConfirmCard
+              regRequest={getRegRequest()}
+              handleConfirmation={handleRegistrationReveal}
+              isProcessing={isProcessing()}
+              error={error}
+            />
+          )}
+        </Card.Body>
+      </Card>
     </>
   );
 };

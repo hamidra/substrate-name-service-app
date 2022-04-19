@@ -2,7 +2,7 @@ import { Row, Col } from 'react-bootstrap';
 import { ArrowLeft } from 'phosphor-react';
 
 interface CardHeaderProps {
-  cardText: string;
+  cardText?: string;
   title: string;
   backClickHandler?: () => void;
 }

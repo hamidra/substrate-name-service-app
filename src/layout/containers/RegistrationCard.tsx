@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
-import { Card } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { Row, Col, Card } from 'react-bootstrap';
+import { useMatch, useNavigate, useParams } from 'react-router-dom';
 import { useSubstrate, useKeyring } from 'layout/hooks';
 import { get32BitSalt, getSigningAccount } from 'substrate/utils';
 import { useNameRegistration } from 'layout/hooks';
 import RegRequestCard from './RegRequestCard';
 import RegConfirmCard from './RegConfirmCard';
 import RegWaitCard from './RegWaitCard';
+import CardHeader from 'components/CardHeader';
+import { siteMap } from 'layout/routes/NameServiceRoutes';
 
 const RegistrationForm = () => {
   const { nameServiceProvider }: any = useSubstrate();
@@ -239,52 +241,96 @@ const RegistrationForm = () => {
   };
   return (
     <>
-      <Card
-        style={{ width: 580, maxWidth: '100%', minHeight: 540 }}
-        className="shadow"
-      >
-        <Card.Body className="d-flex flex-column">
-          {currentStep === 1 && (
-            <RegRequestCard
-              name={name}
-              initLeasetime={leaseTime}
-              isProcessing={isProcessing()}
-              handleRegistration={handleRegistrationCommit}
-              error={error}
-            />
-          )}
-          {currentStep === 2 && (
-            <RegWaitCard
-              name={name}
-              waitPeriod={60}
-              passedPeriod={(currentStepProgress / 100) * 60}
-            />
-          )}
-          {currentStep === 3 && (
-            <RegConfirmCard
-              regRequest={getRegRequest()}
-              handleConfirmation={handleRegistrationReveal}
-              isProcessing={isProcessing()}
-              error={error}
-            />
-          )}
-        </Card.Body>
-      </Card>
+      <Card.Body className="d-flex flex-column">
+        {currentStep === 1 && (
+          <RegRequestCard
+            name={name}
+            initLeasetime={leaseTime}
+            isProcessing={isProcessing()}
+            handleRegistration={handleRegistrationCommit}
+            error={error}
+          />
+        )}
+        {currentStep === 2 && (
+          <RegWaitCard
+            name={name}
+            waitPeriod={60}
+            passedPeriod={(currentStepProgress / 100) * 60}
+          />
+        )}
+        {currentStep === 3 && (
+          <RegConfirmCard
+            regRequest={getRegRequest()}
+            handleConfirmation={handleRegistrationReveal}
+            isProcessing={isProcessing()}
+            error={error}
+          />
+        )}
+      </Card.Body>
     </>
   );
 };
 
-const Registration = () => {
+const NotAvailableCard = () => {
   const { name } = useParams();
+  const navigate = useNavigate();
+  const namePageMatch = useMatch(siteMap.NamePage.path);
+
+  const gotoMainPage = () => {
+    navigate(siteMap.MainPage.path);
+  };
+
+  const gotoDetails = () => {
+    // generate the path to details tab
+    const detailsPath = `${namePageMatch.pathnameBase}/${siteMap.NamePage.Details.path}`;
+    navigate(detailsPath);
+  };
+
+  return (
+    <>
+      <Card.Body className="d-flex flex-column">
+        <CardHeader
+          title={'Not available'}
+          cardText={[
+            <b>{name}</b>,
+            ' is not available. Try searching for a different domain.',
+          ]}
+        />
+        <Row>
+          <Col className="px-5 flex-column flex-md-row d-flex justify-content-center">
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={(e) => gotoMainPage()}
+            >
+              Try Again
+            </button>
+          </Col>
+          <Col className="px-5 flex-column flex-md-row d-flex justify-content-center">
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={(e) => gotoDetails()}
+            >
+              See Details
+            </button>
+          </Col>
+        </Row>
+      </Card.Body>
+    </>
+  );
+};
+const Registration = () => {
   const { nameRegistration } = useNameRegistration();
 
   return (
     <>
-      {!nameRegistration ? (
-        <RegistrationForm />
-      ) : (
-        <div>{`${name} is already registered.`}</div>
-      )}
+      <Card
+        style={{ width: 580, maxWidth: '100%', minHeight: 540 }}
+        className="shadow"
+      >
+        {!nameRegistration ? <RegistrationForm /> : <NotAvailableCard />}
+      </Card>
     </>
   );
 };

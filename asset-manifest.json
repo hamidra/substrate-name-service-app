@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/substrate-name-service-app/static/css/main.978b7a34.css",
-    "main.js": "/substrate-name-service-app/static/js/main.3b2d9425.js",
+    "main.js": "/substrate-name-service-app/static/js/main.e530ea8d.js",
     "static/js/787.c21a0150.chunk.js": "/substrate-name-service-app/static/js/787.c21a0150.chunk.js",
     "static/media/bootstrap-icons.woff?": "/substrate-name-service-app/static/media/bootstrap-icons.c1d7432ee75fa194e499.woff",
     "static/media/bootstrap-icons.woff2?": "/substrate-name-service-app/static/media/bootstrap-icons.a13b815539b49de48d23.woff2",
@@ -9,11 +9,11 @@
     "index.html": "/substrate-name-service-app/index.html",
     "static/media/index.cjs": "/substrate-name-service-app/static/media/index.f2b6f7ffc9a430272d20.cjs",
     "main.978b7a34.css.map": "/substrate-name-service-app/static/css/main.978b7a34.css.map",
-    "main.3b2d9425.js.map": "/substrate-name-service-app/static/js/main.3b2d9425.js.map",
+    "main.e530ea8d.js.map": "/substrate-name-service-app/static/js/main.e530ea8d.js.map",
     "787.c21a0150.chunk.js.map": "/substrate-name-service-app/static/js/787.c21a0150.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.978b7a34.css",
-    "static/js/main.3b2d9425.js"
+    "static/js/main.e530ea8d.js"
   ]
 }

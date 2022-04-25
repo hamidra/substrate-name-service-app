@@ -288,7 +288,7 @@ const NotAvailableCard = () => {
 
   return (
     <>
-      <Card.Body className="d-flex flex-column">
+      <Card.Body className="d-flex flex-column justify-content-center">
         <CardHeader
           title={'Not available'}
           cardText={[

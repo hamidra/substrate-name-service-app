@@ -5,18 +5,18 @@ import AccountItem from 'components/AccountItem';
 import AccountSelectModal from 'components/AccountSelectModal';
 import { useKeyring } from 'substrate/contexts/KeyringContext';
 
-const ConnectButton = ({ size }) => {
+interface ConnectButtonProps {
+  className?: string;
+}
+const ConnectButton = ({ className }: ConnectButtonProps) => {
   return (
-    <div className="d-flex align-items-center">
+    <div
+      className={`d-flex justify-content-center align-items-center w-100 ${className}`}
+    >
       <div>
         <Row className="flex-column flex-sm-row">
-          <Col>
-            <div
-              style={{ height: size, minWidth: 150 }}
-              className="d-flex justify-content-center align-items-center"
-            >
-              Connect
-            </div>
+          <Col className="d-flex justify-content-center align-items-center">
+            Connect
           </Col>
         </Row>
       </div>
@@ -33,18 +33,20 @@ const AccountConnect = () => {
   };
   return (
     <>
-      <div className="d-flex flex-row ">
-        <div onClick={() => clickHandler()}>
-          {connectedAccount ? (
-            <AccountItem
-              accountAddress={connectedAccount?.address}
-              shortMode={true}
-              size={40}
-            />
-          ) : (
-            <ConnectButton size={40} />
-          )}
-        </div>
+      <div
+        className="py-1 px-3 d-flex flex-row"
+        onClick={() => clickHandler()}
+        style={{ height: 48, fontWeight: 500 }}
+      >
+        {connectedAccount ? (
+          <AccountItem
+            accountAddress={connectedAccount?.address}
+            shortMode={true}
+            size={35}
+          />
+        ) : (
+          <ConnectButton />
+        )}
       </div>
       <AccountSelectModal
         show={showModal}

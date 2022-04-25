@@ -61,8 +61,8 @@ const Header = () => {
         <div className="d-flex justify-content-end">
           <Nav className="flex-grow-0 justify-content-end mr-2 shadow rounded-pill bg-white">
             <div
-              style={{ minWidth: '5rem', fontWeight: '400' }}
-              className="py-2 px-3 text-center h-100 d-flex"
+              style={{ width: 'max-content', fontWeight: '400' }}
+              className="text-center h-100 d-flex"
             >
               <AccountConnect />
             </div>

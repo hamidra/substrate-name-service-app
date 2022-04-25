@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Card } from 'react-bootstrap';
 import {
   useParams,
   Outlet,
@@ -9,7 +8,7 @@ import {
 
 import styled from 'styled-components';
 import { useSubstrate } from 'layout/hooks';
-import { calcBlockTimeMs } from 'substrate/utils';
+
 interface NamePageProps {
   className?: string;
 }
@@ -30,7 +29,6 @@ const NamePage = ({ className }: NamePageProps) => {
     location?.pathname /* need to query registration everytime location (tab) changes */,
   ]);
 
-  let blockTime = api && calcBlockTimeMs(api);
   return (
     <div className="container d-flex justify-content-center">
       <Outlet

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import 'App.css';
 import { Container } from 'react-bootstrap';
-import Header from 'components/Header';
 import { HashRouter } from 'react-router-dom';
 import { SubstrateContextProvider } from 'substrate/contexts/SubstrateContext';
 import NameServiceRoutes from 'layout/routes/NameServiceRoutes';
@@ -10,6 +9,8 @@ import DeveloperConsole from 'substrate/DeveloperConsole';
 import Processing from 'components/Processing';
 import Error from 'components/Error';
 import { KeyringContextProvider } from 'substrate/contexts/KeyringContext';
+import Header from 'components/Header';
+import Footer from 'components/Footer';
 
 function ConnectionInProgress() {
   const { apiState }: any = useSubstrate();
@@ -32,9 +33,10 @@ function ConnectionInProgress() {
 function Body() {
   return (
     <>
-      <Header />
-      <NameServiceRoutes />
-      <ConnectionInProgress />
+      <Container fluid>
+        <NameServiceRoutes />
+        <ConnectionInProgress />
+      </Container>
     </>
   );
 }
@@ -45,9 +47,9 @@ function App() {
         <KeyringContextProvider>
           <DeveloperConsole />
           <HashRouter>
-            <Container fluid>
-              <Body />
-            </Container>
+            <Header />
+            <Body />
+            <Footer />
           </HashRouter>
         </KeyringContextProvider>
       </SubstrateContextProvider>

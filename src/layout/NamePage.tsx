@@ -30,7 +30,7 @@ const NamePage = ({ className }: NamePageProps) => {
   ]);
 
   return (
-    <div className="container d-flex justify-content-center">
+    <div className="container my-md-5 d-flex justify-content-center">
       <Outlet
         context={{
           nameRegistration: nameRegistration,

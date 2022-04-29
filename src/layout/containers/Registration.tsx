@@ -21,7 +21,7 @@ const RegistrationForm = () => {
 
   // leasperiod
   const getLeasePeriod = () => {
-    return nameServiceProvider?.getPeriodsFromYears(leaseTime);
+    return nameServiceProvider?.getBlockCountFromYears(leaseTime);
   };
 
   // load the stored salt

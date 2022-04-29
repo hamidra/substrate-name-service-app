@@ -8,38 +8,26 @@ import moment from 'moment';
 
 interface NameServiceConstants {
   commitmentDeposit: number;
-  nameDeposit: number;
+  minCommitmentAge: number;
+  maxCommitmentAge: number;
+  maxNameLength: number;
+  maxTextLength: number;
+  subNodeDeposit: number;
   tierThreeLetters: number;
   tierFourLetters: number;
   tierDefault: number;
-  blocksPerRegistrationPeriod: number;
-  notificationPeriod: number;
-  feePerRegistrationPeriod: number;
+  registrationFeePerBlock: number;
 }
 
 class NameServiceProvider {
   apiClient;
-  constants: any = {};
+  constants: NameServiceConstants | {} = {};
   blockTimeMs: number;
   constructor(api) {
     this.apiClient = api;
   }
   initialize() {
-    this.constants.commitmentDeposit =
-      this.apiClient.consts.nameService?.commitmentDeposit;
-    this.constants.nameDeposit =
-      this.apiClient.consts.nameService?.commitmentDeposit;
-    this.constants.tierThreeLetters =
-      this.apiClient.consts.nameService?.tierThreeLetters;
-    this.constants.tierFourLetters =
-      this.apiClient.consts.nameService?.tierFourLetters;
-    this.constants.tierDefault = this.apiClient.consts.nameService?.tierDefault;
-    this.constants.blocksPerRegistrationPeriod =
-      this.apiClient.consts.nameService?.blocksPerRegistrationPeriod;
-    this.constants.notificationPeriod =
-      this.apiClient.consts.nameService?.notificationPeriod;
-    this.constants.feePerRegistrationPeriod =
-      this.apiClient.consts.nameService?.feePerRegistrationPeriod;
+    this.constants = this.apiClient.consts.nameService as NameServiceConstants;
     this.blockTimeMs = calcBlockTimeMs(this.apiClient);
   }
 
@@ -65,16 +53,6 @@ class NameServiceProvider {
   generateNameHash = (name: string) => {
     const hash = blake2AsHex(name);
     return hash;
-  };
-
-  getPeriodsFromYears = (years: number) => {
-    const { blocksPerRegistrationPeriod } = this?.constants || {};
-    if (blocksPerRegistrationPeriod && this.blockTimeMs) {
-      let timestampMs = moment.duration(years, 'years').asMilliseconds();
-      let blocks = timestampMsToBlockCount(timestampMs, this.blockTimeMs);
-      let periods = new BN(blocks)?.div(blocksPerRegistrationPeriod);
-      return periods?.toNumber();
-    }
   };
 
   getBlockCountFromYears = (years: number) => {

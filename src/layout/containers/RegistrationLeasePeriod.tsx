@@ -14,11 +14,11 @@ const RegistrationLeasePeriod = ({ leaseTime, setLeaseTime }) => {
     tierThreeLetters,
     tierFourLetters,
     tierDefault,
-    blocksPerRegistrationPeriod: blocksPerPeriod,
-    feePerRegistrationPeriod: feePerPeriod,
+    registrationFeePerBlock: feePerBlock,
   } = nameServiceProvider?.constants || {};
 
-  const leasePeriod = nameServiceProvider?.getPeriodsFromYears(leaseTime);
+  const leasePeriodInBlocks =
+    nameServiceProvider?.getBlockCountFromYears(leaseTime);
 
   const getTierFee = (name: string): BN => {
     let charCount = name?.length;
@@ -35,39 +35,32 @@ const RegistrationLeasePeriod = ({ leaseTime, setLeaseTime }) => {
     return fee;
   };
 
-  const getRegistrationFee = (name: string, periods: number): BN => {
+  const getRegistrationFee = (name: string, blocks: number): BN => {
     let label = name?.split('.')[0];
-    if (!label || !periods || !feePerPeriod) {
+    if (!label || !blocks || !feePerBlock) {
       return;
     }
-    let periodsBN = new BN(periods);
+    let blocksBN = new BN(blocks);
     let baseFee = getTierFee(label);
-    let periodFee = periodsBN.mul(feePerPeriod);
+    let periodFee = blocksBN.mul(feePerBlock);
     let regFee = baseFee.add(periodFee);
     return regFee;
   };
 
-  const getLeasePeriodInBlocks = (leasePeriod): number => {
-    let blockCount;
-    if (leasePeriod && blocksPerPeriod) {
-      const leasePeriodBN = new BN(leasePeriod);
-      blockCount = leasePeriodBN.mul(blocksPerPeriod).toNumber();
-    }
-    return blockCount;
-  };
-
-  const getLeasePeriodDisplay = (leasePeriod): string => {
+  const getLeasePeriodDisplay = (leasePeriodInBlocks): string => {
     let leasePeriodDisplay = '';
     if (chainInfo) {
-      let leaseBlockCount = getLeasePeriodInBlocks(leasePeriod);
       let { blockTimeMs }: { blockTimeMs: number } = chainInfo;
-      let leaseTimespan = blockCountToTimespanMs(blockTimeMs, leaseBlockCount);
+      let leaseTimespan = blockCountToTimespanMs(
+        blockTimeMs,
+        leasePeriodInBlocks
+      );
       leasePeriodDisplay = moment.duration(leaseTimespan).humanize();
     }
     return leasePeriodDisplay;
   };
 
-  const registrationFee = getRegistrationFee(name, leasePeriod);
+  const registrationFee = getRegistrationFee(name, leasePeriodInBlocks);
   const registrationFeeDisplay = fromChainUnit(
     registrationFee,
     chainInfo?.decimals,
@@ -92,9 +85,7 @@ const RegistrationLeasePeriod = ({ leaseTime, setLeaseTime }) => {
           step={1}
           setValue={(value) => _setLeaseTime(value)}
         />
-        <div className="form-text">{`for registration period of ${getLeasePeriodInBlocks(
-          leasePeriod
-        )} blocks`}</div>
+        <div className="form-text">{`for registration period of ${leasePeriodInBlocks} blocks`}</div>
       </div>
       <div className="w-100 my-2 border-top"></div>
       <div className="col-12 my-2 d-flex flex-column flex-md-row justify-content-between">

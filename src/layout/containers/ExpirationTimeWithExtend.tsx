@@ -19,7 +19,7 @@ const ExpirationTimeWithExtend = ({ name }) => {
 
   // leasperiod
   const getLeasePeriod = () => {
-    return nameServiceProvider?.getPeriodsFromYears(leaseTime);
+    return nameServiceProvider?.getBlockCounts(leaseTime);
   };
 
   const getExpirationTimeDisplay = async (

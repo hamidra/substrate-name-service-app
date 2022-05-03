@@ -10,10 +10,8 @@ const RegConfirmCard = ({
   isProcessing,
   error,
 }) => {
-  const { name, registrant, controller, leasePeriod, fee } = regRequest;
-  const registrantStr = registrant
-    ? stringShorten(registrant, ADDR_PADDING_LEN)
-    : 'N/A';
+  const { name, owner, controller, leasePeriod, fee } = regRequest;
+  const ownertStr = owner ? stringShorten(owner, ADDR_PADDING_LEN) : 'N/A';
   const controllerStr = controller
     ? stringShorten(controller, ADDR_PADDING_LEN)
     : 'N/A';
@@ -38,9 +36,9 @@ const RegConfirmCard = ({
             <Row className="mb-2">
               <Col>
                 <div className="mb-1">
-                  <b>Registrant</b>
+                  <b>Owner</b>
                 </div>
-                <div>{registrantStr}</div>
+                <div>{ownertStr}</div>
               </Col>
               <Col>
                 <div className="mb-1">

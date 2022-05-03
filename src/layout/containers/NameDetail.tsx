@@ -23,12 +23,10 @@ const NameDetail = () => {
               </div>
             </div>
             <div className="mb-3 row">
-              <label className="col-md-3 col-form-label">REGISTRANT</label>
+              <label className="col-md-3 col-form-label">OWNER</label>
               <div className="col-md-9 col-form-label">
                 <div>
-                  {nameRegistration
-                    ? nameRegistration.registrant
-                    : `Not registered`}
+                  {nameRegistration ? nameRegistration.owner : `Not registered`}
                 </div>
               </div>
             </div>
@@ -36,7 +34,9 @@ const NameDetail = () => {
               <label className="col-md-3 col-form-label">CONTROLLER</label>
               <div className="col-md-9 col-form-label">
                 <div>
-                  {nameRegistration ? nameRegistration.owner : `Not registered`}
+                  {nameRegistration
+                    ? nameRegistration.controller
+                    : `Not registered`}
                 </div>
               </div>
             </div>

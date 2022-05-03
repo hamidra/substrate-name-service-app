@@ -179,14 +179,14 @@ const RegistrationForm = () => {
   };
 
   const getRegRequest = () => {
-    const { who, when } = commitment || {};
+    const { owner, depositor } = commitment || {};
     const leaseBlocks =
       leaseTime && nameServiceProvider?.getBlockCountFromYears(leaseTime);
     const leasePeriod = { years: leaseTime, blocks: leaseBlocks };
     let regRequest = {
       name,
-      registrant: who,
-      controller: who,
+      owner: owner,
+      controller: depositor,
       leasePeriod,
       fee: { reg: '100', tx: '0.0034' },
     };

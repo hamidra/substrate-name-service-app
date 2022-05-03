@@ -25,15 +25,27 @@ const RegistrationForm = () => {
   const { name } = useParams();
   const [leaseTime, setLeaseTime] = useState(1); // in years
   const [currentStep, setCurrentStep] = useState(1);
-  const [currentStepProgress, setCurrentStepProgress] = useState(0);
+  const [txInProgress, setTxInProgress] = useState(false);
   const [progressTimer, setProgressTimer] = useState(null);
-  const currentStepProgressRef = useRef(currentStepProgress);
   const [salt, setSalt] = useState(null);
   const [error, setError] = useState(null);
   const [commitment, setCommitment] = useState(null);
   const [commitmentAge, setCommitmentAge] = useState(null);
   const minCommitmentAge =
     nameServiceProvider?.constants?.minCommitmentAge?.toNumber();
+
+  const reset = () => {
+    setTxInProgress(false);
+    setError(null);
+  };
+
+  const gotToStep = (step) => {
+    // if step changes reset the form and change the step
+    if (currentStep !== step) {
+      reset();
+      setCurrentStep(step);
+    }
+  };
 
   // leasperiod
   const getLeasePeriod = () => {
@@ -63,14 +75,9 @@ const RegistrationForm = () => {
   };
 
   // check if any  commitments exists for  (name, nameSalt) in order to specify the current registration state
-  const loadRegistrationState = async (name, nameSalt) => {
+  const loadRegistrationState = async (api, commitmentHash, commitmentAge) => {
     let commitment;
-    let commitmentHash;
-    if (name && nameSalt) {
-      commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
-        name,
-        nameSalt
-      );
+    if (commitmentHash) {
       commitment = await nameServiceProvider.getCommitment(commitmentHash);
       setCommitment(commitment);
     }
@@ -80,20 +87,18 @@ const RegistrationForm = () => {
     if (api && commitment) {
       if (commitmentAge || commitmentAge == 0) {
         if (commitmentAge < minCommitmentAge) {
-          setCurrentStep(2);
+          gotToStep(2);
           !progressTimer && runProgressTimer(commitmentHash);
         } else {
-          setCurrentStep(3);
-          setCommitmentAge(null);
-          setCurrentStepProgress(0);
+          gotToStep(3);
+          setCommitmentAge(minCommitmentAge + 1); // commitment is mature
         }
       } else {
         let age = await calcCommitmentAge(api, commitment);
         setCommitmentAge(age);
       }
     } else {
-      setCurrentStep(1);
-      setCurrentStepProgress(0);
+      gotToStep(1);
     }
   };
 
@@ -101,18 +106,18 @@ const RegistrationForm = () => {
   const storedReg = loadStoredCommitment(name);
   useEffect(() => {
     setSalt(storedReg?.salt);
-    setLeaseTime(storedReg?.leaseTime);
-    if (nameServiceProvider) {
-      loadRegistrationState(name, storedReg?.salt);
+    if (api && nameServiceProvider) {
+      let commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
+        name,
+        storedReg?.salt
+      );
+      loadRegistrationState(api, commitmentHash, commitmentAge);
     }
-  }, [
-    storedReg?.leaseTime,
-    storedReg?.salt,
-    nameServiceProvider,
-    name,
-    api,
-    commitmentAge,
-  ]);
+  }, [storedReg?.salt, nameServiceProvider, name, api, commitmentAge]);
+
+  useEffect(() => {
+    setLeaseTime(storedReg?.leaseTime);
+  }, [storedReg?.leaseTime]);
 
   // clearInterval if there is any progress timer running
   useEffect(() => {
@@ -132,15 +137,7 @@ const RegistrationForm = () => {
   };
 
   const isProcessing = () => {
-    if (
-      !currentStepProgress ||
-      currentStepProgress === 0 ||
-      currentStepProgress === 100
-    ) {
-      return false;
-    } else {
-      return true;
-    }
+    return !!txInProgress;
   };
 
   const calcCommitmentAge = async (api, commitment) => {
@@ -166,8 +163,7 @@ const RegistrationForm = () => {
             setCurrentStep(2);
             setCommitmentAge(age);
           } else {
-            setCurrentStep(3);
-            setCurrentStepProgress(0);
+            gotToStep(3);
             setCommitmentAge(null);
             clearInterval(timer);
             setProgressTimer(null);
@@ -207,13 +203,11 @@ const RegistrationForm = () => {
       nameServiceProvider
         .reveal(connectedSigningAccount, name, salt, leasePeriod)
         .then(() => {
-          setCurrentStep(3);
-          setCurrentStepProgress(100);
+          gotToStep(4);
         });
-      setCurrentStep(3);
-      setCurrentStepProgress(50);
+      setTxInProgress(true);
     } catch (err) {
-      setCurrentStepProgress(0);
+      setTxInProgress(false);
       setError(err?.message);
     }
   };
@@ -239,17 +233,14 @@ const RegistrationForm = () => {
       nameServiceProvider
         .commit(connectedSigningAccount, commitmentHash)
         .then(() => {
-          setCurrentStep(2);
-          setCurrentStepProgress(0);
+          gotToStep(2);
           setSalt(salt);
           setLeaseTime(leaseTime);
           runProgressTimer(commitmentHash);
         });
-
-      setCurrentStep(1);
-      setCurrentStepProgress(50);
+      setTxInProgress(true);
     } catch (err) {
-      setCurrentStepProgress(0);
+      setTxInProgress(false);
       setError(err?.message);
     }
   };

@@ -2,7 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import { useMatch, useNavigate, useParams } from 'react-router-dom';
 import { useSubstrate, useKeyring } from 'layout/hooks';
-import { get32BitSalt, getSigningAccount } from 'substrate/utils';
+import {
+  get32BitSalt,
+  getCurrentBlockNumber,
+  getSigningAccount,
+} from 'substrate/utils';
 import { useNameRegistration } from 'layout/hooks';
 import RegRequestCard from './RegRequestCard';
 import RegConfirmCard from './RegConfirmCard';
@@ -10,8 +14,13 @@ import RegWaitCard from './RegWaitCard';
 import CardHeader from 'components/CardHeader';
 import { siteMap } from 'layout/routes/NameServiceRoutes';
 
+interface CommitmentInfo {
+  salt: number;
+  leaseTime: number;
+}
+
 const RegistrationForm = () => {
-  const { nameServiceProvider }: any = useSubstrate();
+  const { api, nameServiceProvider }: any = useSubstrate();
   const { connectedAccount }: any = useKeyring();
   let { name } = useParams();
   let [leaseTime, setLeaseTime] = useState(1); // in years
@@ -29,10 +38,10 @@ const RegistrationForm = () => {
   };
 
   // load the stored salt
-  const loadStoredRegistration = (name) => {
+  const loadStoredCommitment = (name: string): CommitmentInfo => {
     try {
-      const regStr = localStorage.getItem(name);
-      const regObj = regStr ? JSON.parse(regStr) : null;
+      const regStr: string = localStorage.getItem(name);
+      const regObj: CommitmentInfo = regStr ? JSON.parse(regStr) : null;
 
       if (regObj?.salt && !isNaN(Number(regObj.salt))) {
         regObj.salt = Number(regObj.salt);
@@ -46,8 +55,11 @@ const RegistrationForm = () => {
     }
   };
 
-  const storedReg = loadStoredRegistration(name);
-  // check any available commitments for the (name, nameSalt) to fins the current registration state
+  const storeCommitment = (name: string, commimentInfo: CommitmentInfo) => {
+    localStorage.setItem(name, JSON.stringify(commimentInfo));
+  };
+
+  // check if any  commitments exists for  (name, nameSalt) in order to specify the current registration state
   const loadRegistrationState = async (name, nameSalt) => {
     let commitment;
     if (name && nameSalt) {
@@ -72,6 +84,8 @@ const RegistrationForm = () => {
     }
   };
 
+  // load stored commitments
+  const storedReg = loadStoredCommitment(name);
   useEffect(() => {
     setSalt(storedReg?.salt);
     setLeaseTime(storedReg?.leaseTime);
@@ -87,10 +101,6 @@ const RegistrationForm = () => {
       progressTimer && clearInterval(progressTimer);
     };
   }, [progressTimer]);
-
-  const storeRegistration = (name, salt, leaseTime) => {
-    localStorage.setItem(name, JSON.stringify({ salt, leaseTime }));
-  };
 
   const _setLeaseTime = (leaseTime) => {
     setLeaseTime(leaseTime);
@@ -113,44 +123,41 @@ const RegistrationForm = () => {
     }
   };
 
-  /*const getRegistrationButtonProps = (step, currentStepProgress) => {
-    let btnProps = {
-      title: 'Request to Register',
-      disabled: false,
-      clickHandler: () => handleRegistrationCommit(),
-      spinner: isProcessing(),
-    };
-    switch (step) {
-      case 1:
-        break;
-      case 2:
-        btnProps = {
-          title: 'Register',
-          disabled: true,
-          clickHandler: () => {
-            return null;
-          },
-          spinner: false,
-        };
-        break;
-      case 3:
-        btnProps = {
-          title: 'Register',
-          disabled: false,
-          clickHandler: () => handleRegistrationReveal(),
-          spinner: isProcessing(),
-        };
-        break;
-    }
-    return btnProps;
+  const runProgressTimer = async (commitmentHash) => {
+    const minCommitmentAge =
+      nameServiceProvider?.constants?.minCommitmentAge?.toNumber();
+    let timer = setInterval(async () => {
+      if (api) {
+        const commitment = await nameServiceProvider?.getCommitment(
+          commitmentHash
+        );
+        const commitmentBlockNumber: number = commitment?.when;
+        const currentBlockNumber: number = await getCurrentBlockNumber(api);
+        console.log(
+          currentBlockNumber,
+          commitmentBlockNumber,
+          minCommitmentAge
+        );
+        if (currentBlockNumber && commitmentBlockNumber && minCommitmentAge) {
+          let newProgress = Math.floor(
+            ((currentBlockNumber - commitmentBlockNumber) / minCommitmentAge) *
+              100
+          );
+          if (newProgress < 100) {
+            console.log(newProgress);
+            setCurrentStepProgress(newProgress);
+            //currentStepProgressRef.current = newProgress;
+          } else {
+            setCurrentStep(3);
+            setCurrentStepProgress(0);
+            clearInterval(timer);
+            setProgressTimer(null);
+          }
+        }
+      }
+    }, 600);
+    setProgressTimer(timer);
   };
-
-  const {
-    title: btnTitle,
-    disabled: btnDisabled,
-    clickHandler: btnClickHandler,
-    spinner,
-  } = getRegistrationButtonProps(currentStep, currentStepProgress);*/
 
   const getRegRequest = () => {
     const { who, when } = commitment || {};
@@ -203,33 +210,21 @@ const RegistrationForm = () => {
       }
       let connectedSigningAccount = await getSigningAccount(connectedAccount);
       const salt = get32BitSalt();
-      const commitHash = nameServiceProvider.generateCommitmentHashCodec(
+      const commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
         name,
         salt
       );
+      // store commited registration in local storage
+      storeCommitment(name, { salt, leaseTime });
+      // commit
       nameServiceProvider
-        .commit(connectedSigningAccount, commitHash)
+        .commit(connectedSigningAccount, commitmentHash)
         .then(() => {
           setCurrentStep(2);
           setCurrentStepProgress(0);
           setSalt(salt);
           setLeaseTime(leaseTime);
-          // store commited registration in local storage
-          storeRegistration(name, salt, leaseTime);
-
-          let timer = setInterval(() => {
-            let newProgress = currentStepProgressRef.current + 10;
-            if (newProgress < 100) {
-              setCurrentStepProgress(newProgress);
-              currentStepProgressRef.current = newProgress;
-            } else {
-              setCurrentStep(3);
-              setCurrentStepProgress(0);
-              clearInterval(timer);
-              setProgressTimer(null);
-            }
-          }, 600);
-          setProgressTimer(timer);
+          runProgressTimer(commitmentHash);
         });
 
       setCurrentStep(1);

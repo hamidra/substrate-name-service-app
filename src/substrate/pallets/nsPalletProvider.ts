@@ -7,16 +7,16 @@ import { timestampMsToBlockCount } from 'substrate/utils';
 import moment from 'moment';
 
 interface NameServiceConstants {
-  commitmentDeposit: number;
-  minCommitmentAge: number;
-  maxCommitmentAge: number;
-  maxNameLength: number;
-  maxTextLength: number;
-  subNodeDeposit: number;
-  tierThreeLetters: number;
-  tierFourLetters: number;
-  tierDefault: number;
-  registrationFeePerBlock: number;
+  commitmentDeposit;
+  minCommitmentAge;
+  maxCommitmentAge;
+  maxNameLength;
+  maxTextLength;
+  subNodeDeposit;
+  tierThreeLetters;
+  tierFourLetters;
+  tierDefault;
+  registrationFeePerBlock;
 }
 
 class NameServiceProvider {
@@ -27,7 +27,24 @@ class NameServiceProvider {
     this.apiClient = api;
   }
   initialize() {
-    this.constants = this.apiClient.consts.nameService as NameServiceConstants;
+    // this.constants = this.apiClient.consts.nameService as NameServiceConstants;
+    let consts: any = {};
+    consts.commitmentDeposit =
+      this.apiClient.consts.nameService.commitmentDeposit;
+    consts.minCommitmentAge =
+      this.apiClient.consts.nameService.minCommitmentAge;
+    consts.maxCommitmentAge =
+      this.apiClient.consts.nameService.maxCommitmentAge;
+    consts.maxNameLength = this.apiClient.consts.nameService.maxNameLength;
+    consts.maxTextLength = this.apiClient.consts.nameService.maxTextLength;
+    consts.subNodeDeposit = this.apiClient.consts.nameService.subNodeDeposit;
+    consts.tierThreeLetters =
+      this.apiClient.consts.nameService.tierThreeLetters;
+    consts.tierFourLetters = this.apiClient.consts.nameService.tierFourLetters;
+    consts.tierDefault = this.apiClient.consts.nameService.tierDefault;
+    consts.registrationFeePerBlock = consts.tierDefault =
+      this.apiClient.consts.nameService.tierDefault;
+    this.constants = consts as NameServiceConstants;
     this.blockTimeMs = calcBlockTimeMs(this.apiClient);
   }
 
@@ -67,7 +84,7 @@ class NameServiceProvider {
     let commitment = await this.apiClient.query.nameService.commitments(
       commitmentHash
     );
-    return commitment.unwrapOr(null)?.toHuman();
+    return commitment.unwrapOr(null)?.toJSON();
   }
 
   async getRegistration(name) {

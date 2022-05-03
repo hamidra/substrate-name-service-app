@@ -108,6 +108,26 @@ export const getBlockTimestampMs = (
   return currentBlock.timestamp + blockCount * blockTimeMs;
 };
 
+export const getCurrentBlockNumber = async (api) => {
+  const currentHeader = await api.rpc.chain.getHeader();
+  const currentBlockNumber = currentHeader?.number?.toNumber();
+  return currentBlockNumber;
+};
+
+export const getCurrentBlockInfo = async (api) => {
+  let getCurrentTimestamp = api.query.timestamp.now();
+  let getCurrentBlockHeader = api.rpc.chain.getHeader();
+  let [currentTimestamp, currentHeader] = await Promise.all([
+    getCurrentTimestamp,
+    getCurrentBlockHeader,
+  ]);
+  let currentBlock = {
+    number: currentHeader?.number?.toNumber(),
+    timestamp: currentTimestamp?.toJSON(),
+  };
+  return currentBlock;
+};
+
 /**
  * convert a value from chain unit to a base 10 decimal number
  * @param {*} value the value in chain unit (in string or BN)

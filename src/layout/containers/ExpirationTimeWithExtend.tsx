@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import RegistrationLeasePeriod from 'layout/containers/RegistrationLeasePeriod';
 import { useSubstrate, useKeyring } from 'layout/hooks';
 import { getSigningAccount, getBlockTimestampMs } from 'substrate/utils';
-import BN from 'bn.js';
 import moment from 'moment';
+import { getCurrentBlockInfo } from 'substrate/utils';
 import { useNameRegistration } from 'layout/hooks';
 
 const ExpirationTimeWithExtend = ({ name }) => {
@@ -28,16 +28,7 @@ const ExpirationTimeWithExtend = ({ name }) => {
     expirationBlockNumber
   ): Promise<string> => {
     let expirationTimeDisplay = '';
-    let getCurrentTimestamp = api.query.timestamp.now();
-    let getCurrentBlockHeader = api.rpc.chain.getHeader();
-    let [currentTimestamp, currentHeader] = await Promise.all([
-      getCurrentTimestamp,
-      getCurrentBlockHeader,
-    ]);
-    let currentBlock = {
-      number: currentHeader?.toJSON()?.number,
-      timestamp: currentTimestamp?.toJSON(),
-    };
+    let currentBlock = await getCurrentBlockInfo(api);
     let expirationTimestamp = getBlockTimestampMs(
       currentBlock,
       expirationBlockNumber,

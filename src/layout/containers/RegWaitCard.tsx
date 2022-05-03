@@ -14,7 +14,7 @@ const RegWaitCard = ({ name, waitPeriod, passedPeriod }) => {
             seconds={waitPeriod}
             passed={passedPeriod}
             size={200}
-            strokeBgColor="white"
+            strokeBgColor="grey"
             strokeColor="red"
             strokeWidth={12}
           />

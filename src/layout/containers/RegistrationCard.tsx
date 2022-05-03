@@ -22,15 +22,18 @@ interface CommitmentInfo {
 const RegistrationForm = () => {
   const { api, nameServiceProvider }: any = useSubstrate();
   const { connectedAccount }: any = useKeyring();
-  let { name } = useParams();
-  let [leaseTime, setLeaseTime] = useState(1); // in years
-  let [currentStep, setCurrentStep] = useState(1);
-  let [currentStepProgress, setCurrentStepProgress] = useState(0);
-  let [progressTimer, setProgressTimer] = useState(null);
-  let currentStepProgressRef = useRef(currentStepProgress);
-  let [salt, setSalt] = useState(null);
-  let [commitment, setCommitment] = useState(null);
+  const { name } = useParams();
+  const [leaseTime, setLeaseTime] = useState(1); // in years
+  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStepProgress, setCurrentStepProgress] = useState(0);
+  const [progressTimer, setProgressTimer] = useState(null);
+  const currentStepProgressRef = useRef(currentStepProgress);
+  const [salt, setSalt] = useState(null);
   const [error, setError] = useState(null);
+  const [commitment, setCommitment] = useState(null);
+  const [commitmentAge, setCommitmentAge] = useState(null);
+  const minCommitmentAge =
+    nameServiceProvider?.constants?.minCommitmentAge?.toNumber();
 
   // leasperiod
   const getLeasePeriod = () => {
@@ -62,8 +65,9 @@ const RegistrationForm = () => {
   // check if any  commitments exists for  (name, nameSalt) in order to specify the current registration state
   const loadRegistrationState = async (name, nameSalt) => {
     let commitment;
+    let commitmentHash;
     if (name && nameSalt) {
-      let commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
+      commitmentHash = nameServiceProvider.generateCommitmentHashCodec(
         name,
         nameSalt
       );
@@ -73,10 +77,19 @@ const RegistrationForm = () => {
     // ToDo: match the connected account address with the commentment.who address
 
     // ToDo: check if commitment is mature if commiment is mature (the wait time is over)
-    if (commitment) {
-      if (currentStep !== 2) {
-        setCurrentStep(3);
-        setCurrentStepProgress(0);
+    if (api && commitment) {
+      if (commitmentAge || commitmentAge == 0) {
+        if (commitmentAge < minCommitmentAge) {
+          setCurrentStep(2);
+          !progressTimer && runProgressTimer(commitmentHash);
+        } else {
+          setCurrentStep(3);
+          setCommitmentAge(null);
+          setCurrentStepProgress(0);
+        }
+      } else {
+        let age = await calcCommitmentAge(api, commitment);
+        setCommitmentAge(age);
       }
     } else {
       setCurrentStep(1);
@@ -92,7 +105,14 @@ const RegistrationForm = () => {
     if (nameServiceProvider) {
       loadRegistrationState(name, storedReg?.salt);
     }
-  }, [storedReg?.leaseTime, storedReg?.salt, nameServiceProvider, name]);
+  }, [
+    storedReg?.leaseTime,
+    storedReg?.salt,
+    nameServiceProvider,
+    name,
+    api,
+    commitmentAge,
+  ]);
 
   // clearInterval if there is any progress timer running
   useEffect(() => {
@@ -123,39 +143,38 @@ const RegistrationForm = () => {
     }
   };
 
+  const calcCommitmentAge = async (api, commitment) => {
+    let age;
+    const commitmentBlockNumber: number = commitment?.when;
+    const currentBlockNumber: number = await getCurrentBlockNumber(api);
+    if (currentBlockNumber && commitmentBlockNumber) {
+      age = currentBlockNumber - commitmentBlockNumber;
+    }
+    return age;
+  };
+
   const runProgressTimer = async (commitmentHash) => {
-    const minCommitmentAge =
-      nameServiceProvider?.constants?.minCommitmentAge?.toNumber();
     let timer = setInterval(async () => {
       if (api) {
         const commitment = await nameServiceProvider?.getCommitment(
           commitmentHash
         );
-        const commitmentBlockNumber: number = commitment?.when;
-        const currentBlockNumber: number = await getCurrentBlockNumber(api);
-        console.log(
-          currentBlockNumber,
-          commitmentBlockNumber,
-          minCommitmentAge
-        );
-        if (currentBlockNumber && commitmentBlockNumber && minCommitmentAge) {
-          let newProgress = Math.floor(
-            ((currentBlockNumber - commitmentBlockNumber) / minCommitmentAge) *
-              100
-          );
-          if (newProgress < 100) {
-            console.log(newProgress);
-            setCurrentStepProgress(newProgress);
-            //currentStepProgressRef.current = newProgress;
+        let age = await calcCommitmentAge(api, commitment);
+        if (age && minCommitmentAge) {
+          if (age < minCommitmentAge) {
+            console.log(age);
+            setCurrentStep(2);
+            setCommitmentAge(age);
           } else {
             setCurrentStep(3);
             setCurrentStepProgress(0);
+            setCommitmentAge(null);
             clearInterval(timer);
             setProgressTimer(null);
           }
         }
       }
-    }, 600);
+    }, 6000);
     setProgressTimer(timer);
   };
 
@@ -249,8 +268,8 @@ const RegistrationForm = () => {
         {currentStep === 2 && (
           <RegWaitCard
             name={name}
-            waitPeriod={60}
-            passedPeriod={(currentStepProgress / 100) * 60}
+            waitPeriod={minCommitmentAge}
+            passedPeriod={commitmentAge}
           />
         )}
         {currentStep === 3 && (

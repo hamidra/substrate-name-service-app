@@ -52,7 +52,17 @@ const CountdownTimer = ({
           ...countdownSizeStyles,
         }}
       >
-        <div style={textStyles}>{countdown}s</div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <div style={textStyles}>{countdown}</div>
+          <div>Blocks</div>
+        </div>
         <svg style={styles.svg}>
           <circle
             cx={radius}

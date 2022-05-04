@@ -9,17 +9,23 @@ import { useNameRegistration } from 'layout/hooks';
 const ExpirationTimeWithExtend = ({ name }) => {
   let [leaseTime, setLeaseTime] = useState(1);
   let [editMode, setEditMode] = useState(false);
-  let [processing, setProcessing] = useState(false);
   let { nameRegistration, setNameRegistration } = useNameRegistration();
   let expirationBlockNumber = nameRegistration?.expiry;
   let [expirationTimeDisplay, setExpirationTimeDisplay] = useState('');
   let { api, apiState, nameServiceProvider, chainInfo }: any = useSubstrate();
   let { connectedAccount }: any = useKeyring();
+  let [processing, setProcessing] = useState(false);
+  let [error, setError] = useState(null);
   let { blockTimeMs } = chainInfo || {};
+
+  const _setError = (errorMessage: string | null) => {
+    setProcessing(false);
+    setError(errorMessage);
+  };
 
   // leasperiod
   const getLeasePeriod = () => {
-    return nameServiceProvider?.getBlockCounts(leaseTime);
+    return nameServiceProvider?.getBlockCountFromYears(leaseTime);
   };
 
   const getExpirationTimeDisplay = async (
@@ -56,17 +62,21 @@ const ExpirationTimeWithExtend = ({ name }) => {
 
   let extendClickHandler = () => {
     try {
-      setProcessing(false);
+      _setError(null);
       if (!editMode) {
         setEditMode(true);
       } else {
         setProcessing(true);
-        nameExtensionHandler().then(async () => {
-          setEditMode(false);
-          setProcessing(false);
-          let registration = await nameServiceProvider?.getRegistration(name);
-          setNameRegistration(registration?.unwrapOr(null)?.toJSON());
-        });
+        nameExtensionHandler()
+          .then(async () => {
+            setEditMode(false);
+            setProcessing(false);
+            let registration = await nameServiceProvider?.getRegistration(name);
+            setNameRegistration(registration?.unwrapOr(null)?.toJSON());
+          })
+          .catch((err) => {
+            _setError(err?.message);
+          });
 
         // update the name registration
       }
@@ -76,6 +86,7 @@ const ExpirationTimeWithExtend = ({ name }) => {
   let nameExtensionHandler = async () => {
     const leasePeriod = getLeasePeriod();
     let connectedSigningAccount = await getSigningAccount(connectedAccount);
+
     return nameServiceProvider.renew(
       connectedSigningAccount,
       name,
@@ -141,6 +152,10 @@ const ExpirationTimeWithExtend = ({ name }) => {
                 )}
                 Extend
               </button>
+            </div>
+            <div className="w-100 m-2" />
+            <div className="col d-flex justify-content-end pe-3">
+              <div className="text-danger">{error || ''}</div>
             </div>
           </div>
         </>

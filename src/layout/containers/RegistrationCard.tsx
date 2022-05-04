@@ -39,12 +39,17 @@ const RegistrationForm = () => {
     setError(null);
   };
 
-  const gotToStep = (step) => {
+  const goToStep = (step) => {
     // if step changes reset the form and change the step
     if (currentStep !== step) {
       reset();
       setCurrentStep(step);
     }
+  };
+
+  const _setError = (errMessage: string | {}) => {
+    setTxInProgress(false);
+    setError(errMessage);
   };
 
   // leasperiod
@@ -87,10 +92,10 @@ const RegistrationForm = () => {
     if (api && commitment) {
       if (commitmentAge || commitmentAge == 0) {
         if (commitmentAge < minCommitmentAge) {
-          gotToStep(2);
+          goToStep(2);
           !progressTimer && runProgressTimer(commitmentHash);
         } else {
-          gotToStep(3);
+          goToStep(3);
           setCommitmentAge(minCommitmentAge + 1); // commitment is mature
         }
       } else {
@@ -98,7 +103,7 @@ const RegistrationForm = () => {
         setCommitmentAge(age);
       }
     } else {
-      gotToStep(1);
+      goToStep(1);
     }
   };
 
@@ -163,7 +168,7 @@ const RegistrationForm = () => {
             setCurrentStep(2);
             setCommitmentAge(age);
           } else {
-            gotToStep(3);
+            goToStep(3);
             setCommitmentAge(null);
             clearInterval(timer);
             setProgressTimer(null);
@@ -190,7 +195,7 @@ const RegistrationForm = () => {
   };
 
   const handleRegistrationReveal = async () => {
-    setError(null);
+    _setError(null);
     try {
       if (!connectedAccount) {
         throw new Error(
@@ -203,18 +208,21 @@ const RegistrationForm = () => {
       nameServiceProvider
         .reveal(connectedSigningAccount, name, salt, leasePeriod)
         .then(() => {
-          gotToStep(4);
+          setTxInProgress(false);
+          goToStep(4);
+        })
+        .catch((err) => {
+          _setError(err?.message);
         });
       setTxInProgress(true);
     } catch (err) {
-      setTxInProgress(false);
-      setError(err?.message);
+      _setError(err?.message);
     }
   };
 
   const handleRegistrationCommit = async (name, leaseTime) => {
     // reset any error from previous runs
-    setError(null);
+    _setError(null);
     try {
       if (!connectedAccount) {
         throw new Error(
@@ -233,15 +241,17 @@ const RegistrationForm = () => {
       nameServiceProvider
         .commit(connectedSigningAccount, commitmentHash)
         .then(() => {
-          gotToStep(2);
+          goToStep(2);
           setSalt(salt);
           setLeaseTime(leaseTime);
           runProgressTimer(commitmentHash);
+        })
+        .catch((err) => {
+          _setError(err?.message);
         });
       setTxInProgress(true);
     } catch (err) {
-      setTxInProgress(false);
-      setError(err?.message);
+      _setError(err?.message);
     }
   };
   return (

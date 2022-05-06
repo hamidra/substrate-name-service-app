@@ -3,6 +3,7 @@ import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { web3FromSource } from '@polkadot/extension-dapp';
 import { BN } from 'bn.js';
 import { bnMin } from '@polkadot/util';
+import moment from 'moment';
 
 /**
  * trims the specified character from the end of the string.
@@ -97,6 +98,22 @@ export const timestampMsToBlockCount = (
   blockTimeMs: number
 ): number => {
   return Math.floor(timestampMs / blockTimeMs);
+};
+
+export const blockNumberToTimeDisplay = async (
+  api,
+  blockTimeMs,
+  blockNumber
+): Promise<string> => {
+  let timeDisplay = '';
+  let currentBlock = await getCurrentBlockInfo(api);
+  let expirationTimestamp = getBlockTimestampMs(
+    currentBlock,
+    blockNumber,
+    blockTimeMs
+  );
+  timeDisplay = moment(expirationTimestamp).format('MMMM Do YYYY');
+  return timeDisplay;
 };
 
 export const getBlockTimestampMs = (

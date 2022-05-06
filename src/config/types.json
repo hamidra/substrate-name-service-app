@@ -1,5 +1,6 @@
 {
   "CommitmentRaw": "(Vec<u8>,u64)",
+  "SubnodeRaw": "([u8;32], [u8;32])",
   "NameHash": "[u8;32]",
   "CommitmentHash": "[u8;32]",
   "Commitment": {

@@ -26,7 +26,7 @@ const MainPage = ({ className }: PageProps) => {
             placeholder="Find your perfect Dot name"
             handleSearch={(phrase) => {
               // ToDo: this logic (adding .dot) should be refactored to be configurable by components.
-              phrase = `${phrase}.dot`;
+              phrase = `${phrase}`;
               // validate phrase
               navigate(`name/${phrase}`);
             }}

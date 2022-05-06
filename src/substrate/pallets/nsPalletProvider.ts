@@ -48,28 +48,40 @@ class NameServiceProvider {
     this.blockTimeMs = calcBlockTimeMs(this.apiClient);
   }
 
-  generateCommitHashBytes = (name: string, secret: number) => {
-    const nameU8a: Uint8Array = stringToU8a(name);
-    const secretU8a: Uint8Array = numberToU8a(secret);
-    const saltedNameU8a: Uint8Array = new Uint8Array(
-      nameU8a.length + secretU8a.length
-    );
-
-    saltedNameU8a.set(nameU8a);
-    saltedNameU8a.set(secretU8a, nameU8a.length);
-    const hash = blake2AsHex(saltedNameU8a);
-    return hash;
-  };
-
   generateCommitmentHashCodec = (name: string, secret: number) => {
     const preimage = this.apiClient.createType('CommitmentRaw', [name, secret]);
     const hash = blake2AsHex(preimage.toU8a());
     return hash;
   };
 
-  generateNameHash = (name: string) => {
+  generateLabelHash = (name: string) => {
     const hash = blake2AsHex(name);
     return hash;
+  };
+
+  generateSubnodeHash = (
+    parentHash: `0x${string}`,
+    labelHash: `0x${string}`
+  ) => {
+    const preimage = this.apiClient.createType('SubnodeRaw', [
+      hexToU8a(parentHash),
+      hexToU8a(labelHash),
+    ]);
+    const hash = blake2AsHex(preimage.toU8a());
+    return hash;
+  };
+
+  generateNameHash = (name: string) => {
+    if (!name) return;
+    let nodes = name.split('.');
+    let label = nodes.shift();
+    let parent = nodes.join('.');
+    const labelHash = this.generateLabelHash(label);
+    const parentHash = parent ? this.generateNameHash(parent)?.nameHash : null;
+    const nameHash = parentHash
+      ? this.generateSubnodeHash(parentHash, labelHash)
+      : labelHash;
+    return { nameHash, parentHash, labelHash };
   };
 
   getBlockCountFromYears = (years: number) => {
@@ -88,12 +100,12 @@ class NameServiceProvider {
   }
 
   async getRegistration(name) {
-    const nameHash = this.generateNameHash(name);
+    const nameHash = this.generateNameHash(name)?.nameHash;
     return this.apiClient.query.nameService.registrations(nameHash);
   }
 
   async getResolver(name) {
-    const nameHash = this.generateNameHash(name);
+    const nameHash = this.generateNameHash(name)?.nameHash;
     return this.apiClient.query.nameService.resolvers(nameHash);
   }
 
@@ -111,9 +123,24 @@ class NameServiceProvider {
     return signAndSendTx(this.apiClient, revealTx, account);
   }
 
-  async renew(account, name, periods) {
-    const nameHash = this.generateNameHash(name);
-    let renewTx = this.apiClient.tx.nameService.renew(nameHash, periods);
+  async revealAndSetAddress(account, name, secret, periods) {
+    if (!name || !secret) {
+      throw new Error('no name or secret specified to reveal');
+    }
+    let nameHash = this.generateNameHash(name)?.nameHash;
+    let address = getAccountAddress(account);
+    let revealTx = this.apiClient.tx.nameService.reveal(name, secret, periods);
+    let setAddressTx = this.apiClient.tx.nameService.setAddress(
+      nameHash,
+      address
+    );
+    let batchAll = this.apiClient.tx.utility.batchAll([revealTx, setAddressTx]);
+    return signAndSendTx(this.apiClient, batchAll, account);
+  }
+
+  async renew(account, name, expiry) {
+    const nameHash = this.generateNameHash(name)?.nameHash;
+    let renewTx = this.apiClient.tx.nameService.renew(nameHash, expiry);
     return signAndSendTx(this.apiClient, renewTx, account);
   }
 }

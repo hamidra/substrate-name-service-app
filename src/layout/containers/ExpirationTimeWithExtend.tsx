@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import RegistrationLeasePeriod from 'layout/containers/RegistrationLeasePeriod';
 import { useSubstrate, useKeyring } from 'layout/hooks';
-import { getSigningAccount, getBlockTimestampMs } from 'substrate/utils';
-import moment from 'moment';
-import { getCurrentBlockInfo } from 'substrate/utils';
+import { getSigningAccount, blockNumberToTimeDisplay } from 'substrate/utils';
+
 import { useNameRegistration } from 'layout/hooks';
 
 const ExpirationTimeWithExtend = ({ name }) => {
@@ -28,27 +27,9 @@ const ExpirationTimeWithExtend = ({ name }) => {
     return nameServiceProvider?.getBlockCountFromYears(leaseTime);
   };
 
-  const getExpirationTimeDisplay = async (
-    api,
-    blockTimeMs,
-    expirationBlockNumber
-  ): Promise<string> => {
-    let expirationTimeDisplay = '';
-    let currentBlock = await getCurrentBlockInfo(api);
-    let expirationTimestamp = getBlockTimestampMs(
-      currentBlock,
-      expirationBlockNumber,
-      blockTimeMs
-    );
-    expirationTimeDisplay = moment(expirationTimestamp).format(
-      'dddd, MMMM Do YYYY, h:mm a'
-    );
-    return expirationTimeDisplay;
-  };
-
   useEffect(() => {
     if (apiState === 'READY' && blockTimeMs && expirationBlockNumber) {
-      getExpirationTimeDisplay(api, blockTimeMs, expirationBlockNumber).then(
+      blockNumberToTimeDisplay(api, blockTimeMs, expirationBlockNumber).then(
         (expirationTimeDisplay) => {
           setExpirationTimeDisplay(expirationTimeDisplay);
         }
@@ -84,14 +65,17 @@ const ExpirationTimeWithExtend = ({ name }) => {
   };
 
   let nameExtensionHandler = async () => {
-    const leasePeriod = getLeasePeriod();
-    let connectedSigningAccount = await getSigningAccount(connectedAccount);
+    if (nameRegistration?.expiry) {
+      const leasePeriod = getLeasePeriod();
+      const extendedExpiry = nameRegistration?.expiry + leasePeriod;
+      let connectedSigningAccount = await getSigningAccount(connectedAccount);
 
-    return nameServiceProvider.renew(
-      connectedSigningAccount,
-      name,
-      leasePeriod
-    );
+      return nameServiceProvider.renew(
+        connectedSigningAccount,
+        name,
+        extendedExpiry
+      );
+    }
   };
 
   return (
@@ -102,7 +86,7 @@ const ExpirationTimeWithExtend = ({ name }) => {
           <div className="col-form-label">
             {nameRegistration ? nameRegistration.expiry : `Not registered`}
           </div>
-          <div className="col-form-label">{expirationTimeDisplay}</div>
+          <div className="col-form-label">{`~ ${expirationTimeDisplay}`}</div>
           {!editMode && (
             <button
               className="btn btn-outline-primary"

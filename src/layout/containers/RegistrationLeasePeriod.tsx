@@ -66,6 +66,7 @@ const RegistrationLeasePeriod = ({ leaseTime, setLeaseTime }) => {
     chainInfo?.decimals,
     5
   );
+  console.log('fee', registrationFee.toString(), registrationFeeDisplay);
 
   const _setLeaseTime = (years: number) => {
     if (0 < years && years <= 100000) {

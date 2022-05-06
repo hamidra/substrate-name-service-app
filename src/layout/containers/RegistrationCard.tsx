@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { Row, Col, Card } from 'react-bootstrap';
-import { useMatch, useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Card } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 import { useSubstrate, useKeyring } from 'layout/hooks';
 import {
   get32BitSalt,
@@ -8,11 +8,11 @@ import {
   getSigningAccount,
 } from 'substrate/utils';
 import { useNameRegistration } from 'layout/hooks';
-import RegRequestCard from './RegRequestCard';
-import RegConfirmCard from './RegConfirmCard';
-import RegWaitCard from './RegWaitCard';
-import CardHeader from 'components/CardHeader';
-import { siteMap } from 'layout/routes/NameServiceRoutes';
+import RegRequestCard from 'layout/containers/RegRequestCard';
+import RegConfirmCard from 'layout/containers/RegConfirmCard';
+import RegWaitCard from 'layout/containers/RegWaitCard';
+import NotAvailableCard from 'layout/containers/NotAvailableCard';
+import RegCompleteCard from 'layout/containers/RegCompleteCard';
 
 interface CommitmentInfo {
   salt: number;
@@ -175,7 +175,7 @@ const RegistrationForm = () => {
           }
         }
       }
-    }, 6000);
+    }, 2000);
     setProgressTimer(timer);
   };
 
@@ -206,8 +206,8 @@ const RegistrationForm = () => {
       let connectedSigningAccount = await getSigningAccount(connectedAccount);
       const leasePeriod = getLeasePeriod();
       nameServiceProvider
-        .reveal(connectedSigningAccount, name, salt, leasePeriod)
-        .then(() => {
+        .revealAndSetAddress(connectedSigningAccount, name, salt, leasePeriod)
+        .then(async () => {
           setTxInProgress(false);
           goToStep(4);
         })
@@ -281,60 +281,12 @@ const RegistrationForm = () => {
             error={error}
           />
         )}
+        {currentStep === 4 && <RegCompleteCard />}
       </Card.Body>
     </>
   );
 };
 
-const NotAvailableCard = () => {
-  const { name } = useParams();
-  const navigate = useNavigate();
-  const namePageMatch = useMatch(siteMap.NamePage.path);
-
-  const gotoMainPage = () => {
-    navigate(siteMap.MainPage.path);
-  };
-
-  const gotoDetails = () => {
-    // generate the path to details tab
-    const detailsPath = `${namePageMatch.pathnameBase}/${siteMap.NamePage.Details.path}`;
-    navigate(detailsPath);
-  };
-
-  return (
-    <>
-      <Card.Body className="d-flex flex-column justify-content-center">
-        <CardHeader
-          title={'Not available'}
-          cardText={[
-            <b>{name}</b>,
-            ' is not available. Try searching for a different domain.',
-          ]}
-        />
-        <Row>
-          <Col className="px-5 flex-column flex-md-row d-flex justify-content-center">
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={(e) => gotoMainPage()}
-            >
-              Try Again
-            </button>
-          </Col>
-          <Col className="px-5 flex-column flex-md-row d-flex justify-content-center">
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={(e) => gotoDetails()}
-            >
-              See Details
-            </button>
-          </Col>
-        </Row>
-      </Card.Body>
-    </>
-  );
-};
 const Registration = () => {
   const { nameRegistration } = useNameRegistration();
 
